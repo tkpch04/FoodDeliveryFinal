@@ -39,6 +39,10 @@ dependencies:
   badges: ^3.1.2
   http: ^1.1.0
   provider: ^6.1.1
+  firebase_core: ^2.22.0
+  firebase_auth: ^4.14.0
+  get: ^4.6.1
+  cloud_firestore: ^4.13.2
 
 dev_dependencies:
   flutter_test:
@@ -102,6 +106,10 @@ flutter:
     - assets/design/images/pngfind-1-HdK.png
     - assets/design/images/pngfind-1-rWV.png
     - assets/design/images/burger-free-download-png-2-Mub.png
+    - assets/images/fast_food.png
+    - assets/images/close.png
+    - assets/images/google.png
+    - assets/images/taxi-fastfood.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

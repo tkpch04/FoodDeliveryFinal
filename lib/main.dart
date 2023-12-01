@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_apps/login_page/welcome_page.dart';
 import 'package:food_delivery_apps/on_cart_screen.dart';
 import 'package:food_delivery_apps/home_page.dart';
 import 'package:food_delivery_apps/item_page.dart';
@@ -17,7 +18,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CartProvider()),
       ],
       child: MaterialApp(
-        home: MyHomePage(),
+        //home: MyHomePage(),
+        home: WelcomePage(),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFEF6C00)),
