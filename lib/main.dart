@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_apps/login_page/welcome_page.dart';
-import 'package:food_delivery_apps/on_cart_screen.dart';
-import 'package:food_delivery_apps/home_page.dart';
-import 'package:food_delivery_apps/item_page.dart';
-import 'package:food_delivery_apps/providers/cart_provider.dart';
+import 'package:food_delivery_apps/model/cart_model.dart';
+import 'package:food_delivery_apps/pages/welcome_page.dart';
+import 'package:food_delivery_apps/pages/home_page.dart';
+import 'package:food_delivery_apps/pages/cart_page.dart';
+import 'package:food_delivery_apps/pages/account_page.dart';
+import 'package:food_delivery_apps/utils/theme_shared.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => CartProvider()),
-      ],
+    return ChangeNotifierProvider(
+      create: (context) => CartModel(),
       child: MaterialApp(
-        //home: MyHomePage(),
-        home: WelcomePage(),
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFFEF6C00)),
-            useMaterial3: true),
+        // theme: ThemeData(
+        //     primarySwatch: Colors.cyan,
+        //     primaryColor: secondaryColor,
+        //     canvasColor: Colors.transparent),
+        home: WelcomePage(),
       ),
     );
   }
@@ -38,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    ItemPage(),
+    HomePage(),
     CartScreen(),
     AccountScreen(),
   ];
@@ -86,7 +91,7 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: OnCartPage(),
+      child: CartPage(),
     );
   }
 }
@@ -95,7 +100,7 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Account Screen'),
+      child: AccountPage(),
     );
   }
 }

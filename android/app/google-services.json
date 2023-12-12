@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "549489214108",
+    "project_id": "pemesanan-makanan-api-3a6c3",
+    "storage_bucket": "pemesanan-makanan-api-3a6c3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:549489214108:android:2d92bb765349a45b5b6359",
+        "android_client_info": {
+          "package_name": "com.example.food_delivery_apps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARUPAjOUoooQbN2s_XZfhk55zUKNilCGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

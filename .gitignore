@@ -35,7 +35,7 @@ migrate_working_dir/
 /macos/
 /web/
 .metadata
-pubspec.lock
+
 
 # Symbolication related
 app.*.symbols

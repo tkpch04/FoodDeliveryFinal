@@ -1,8 +1,7 @@
-//import 'package:food_delivery_apps/home_screen/home.dart';
-import 'package:food_delivery_apps/login_page/registrasi.dart';
-import 'package:food_delivery_apps/login_page/theme_shared.dart';
 import 'package:flutter/material.dart';
-import 'package:food_delivery_apps/main.dart';
+import 'package:food_delivery_apps/pages/registrasi_page.dart';
+import 'package:food_delivery_apps/controller/controller.dart';
+import 'package:food_delivery_apps/utils/theme_shared.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final controller = Controller();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: 150,
                 width: 150,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Text(
@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
               Form(
                 key: _formKey,
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         controller: emailTextController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             prefix: Icon(Icons.person_outline_outlined),
                             labelText: ('Email'),
                             hintText: ("1234@gmail.com"),
@@ -80,10 +80,10 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         controller: passwordTextController,
                         decoration: InputDecoration(
-                          prefix: Icon(Icons.fingerprint),
+                          prefix: const Icon(Icons.fingerprint),
                           labelText: ('Password'),
                           hintText: ("Password"),
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           suffixIcon: InkWell(
                             onTap:
                                 _togglePasswordView, // Memanggil fungsi untuk mengganti tampilan password
@@ -100,18 +100,9 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyHomePage()));
+                          controller.signIn(context, emailTextController.text,
+                              passwordTextController.text);
                         },
-                        child: Text(
-                          "Login",
-                          style: blackTextStyle.copyWith(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
-                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           shape: RoundedRectangleBorder(
@@ -122,6 +113,13 @@ class _LoginPageState extends State<LoginPage> {
                             Size(double.infinity,
                                 50), // Atur tinggi sesuai kebutuhan
                           ),
+                        ),
+                        child: Text(
+                          "Login",
+                          style: blackTextStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
                         ),
                       ),
                       SizedBox(
