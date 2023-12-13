@@ -31,7 +31,10 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Account Page'),
+        title: Text(
+          'Account Page',
+          textAlign: TextAlign.center,
+        ),
         actions: [
           // Logout button
           IconButton(
@@ -48,7 +51,13 @@ class _AccountPageState extends State<AccountPage> {
           } else if (snapshot.hasError) {
             return Text("Error: ${snapshot.error}");
           } else if (!snapshot.hasData || snapshot.data == null) {
-            return Text("User not found");
+            return Center(
+              child: Text(
+                "User not found",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18),
+              ),
+            );
           } else {
             return Padding(
               padding: const EdgeInsets.all(16.0),

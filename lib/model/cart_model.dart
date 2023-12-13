@@ -40,11 +40,25 @@ class CartModel extends ChangeNotifier {
       "Burger dibuat dari daging ikan\n salmon dengan saos mayones",
     ],
     [
+      "Kentang",
+      "15.000",
+      "assets/images/kentang.png",
+      Colors.teal,
+      "Kentang krispy original",
+    ],
+    [
       "Aqua",
       "5.000",
       "assets/images/water.png",
       Colors.orange,
       "Aqua Air Mineral Murni",
+    ],
+    [
+      "Cola-Cola",
+      "10.000",
+      "assets/images/colacola.png",
+      Colors.cyan,
+      "Cola-Cola Seger",
     ],
   ];
 

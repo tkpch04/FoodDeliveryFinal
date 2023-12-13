@@ -29,7 +29,8 @@ class MyApp extends StatelessWidget {
         //     primarySwatch: Colors.cyan,
         //     primaryColor: secondaryColor,
         //     canvasColor: Colors.transparent),
-        home: WelcomePage(),
+        //home: WelcomePage(),
+        home: MyHomePage(),
         routes: {
           '/login': (context) => WelcomePage(),
         },
@@ -107,7 +108,7 @@ class AccountScreen extends StatelessWidget {
     // Assuming you are using Firebase Authentication
     User? user = FirebaseAuth.instance.currentUser;
 
-    // Get the UID from the current user
+    // Mendapatkan Data User dari Uid
     String uid = user?.uid ?? '';
     return Center(
       child: AccountPage(
