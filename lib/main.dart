@@ -29,8 +29,7 @@ class MyApp extends StatelessWidget {
         //     primarySwatch: Colors.cyan,
         //     primaryColor: secondaryColor,
         //     canvasColor: Colors.transparent),
-        //home: WelcomePage(),
-        home: MyHomePage(),
+        home: WelcomePage(),
         routes: {
           '/login': (context) => WelcomePage(),
         },
@@ -49,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    HomePage(),
+    HomeScreen(),
     CartScreen(),
     AccountScreen(),
   ];
@@ -87,9 +86,15 @@ class _MyHomePageState extends State<MyHomePage> {
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Assuming you are using Firebase Authentication
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Mendapatkan Data User dari Uid
+    String uid = user?.uid ?? '';
     return Center(
-      child: Text('Home Screen'),
-    );
+        child: HomePage(
+      uid: uid,
+    ));
   }
 }
 

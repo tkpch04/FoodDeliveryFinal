@@ -13,6 +13,7 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   late Future<UserModel?> _userFuture;
+  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -78,12 +79,43 @@ class _AccountPageState extends State<AccountPage> {
                     'Lokasi: ${snapshot.data!.lokasi ?? "N/A"}',
                     style: TextStyle(fontSize: 18),
                   ),
+                  SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Text('Dark Mode'),
+                      Switch(
+                        value: isDarkMode,
+                        onChanged: (value) {
+                          // Implement your dark mode logic here
+                          setState(() {
+                            isDarkMode = value;
+                            // You can use isDarkMode to apply dark mode
+                            // styles or themes to your app.
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             );
           }
         },
       ),
+    );
+  }
+
+  ThemeData get lightTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      // Define your light theme colors, fonts, etc.
+    );
+  }
+
+  ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      // Define your dark theme colors, fonts, etc.
     );
   }
 }

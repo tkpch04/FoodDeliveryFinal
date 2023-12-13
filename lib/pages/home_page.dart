@@ -6,15 +6,24 @@ import '../components/grocery_item_tile.dart';
 import '../model/cart_model.dart';
 import 'cart_page.dart';
 import 'package:food_delivery_apps/utils/utils.dart';
+import 'package:food_delivery_apps/model/user_model.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String uid;
+  const HomePage({super.key, required this.uid});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  late Future<UserModel?> _userFuture;
+  @override
+  void initState() {
+    super.initState();
+    _userFuture = UserModel.getUserFromFirestore(widget.uid);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,21 +56,46 @@ class _HomePageState extends State<HomePage> {
                 child: Image.asset(
                     'assets/design/images/iconly-bold-location.png'),
               ),
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 11.33, 0),
-                child: Text(
-                  'Depok, Indonesia',
-                  style: SafeGoogleFont(
-                    'Roboto',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    height: 1.1725,
-                    color: Color(0xff0c0c0c),
-                  ),
-                ),
+              FutureBuilder<UserModel?>(
+                future: _userFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  } else if (!snapshot.hasData || snapshot.data == null) {
+                    return Center(
+                      child: Text(
+                        "Lokasi Tidak Diketahui",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    );
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 1),
+                          Text(
+                            '${snapshot.data!.lokasi ?? "N/A"}',
+                            style: SafeGoogleFont(
+                              'Roboto',
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              height: 1.1725,
+                              color: Color(0xff0c0c0c),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
               Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 11.5, 0),
+                margin: EdgeInsets.fromLTRB(3, 0, 11.5, 0),
                 width: 17,
                 height: 20,
                 child: Image.asset(
