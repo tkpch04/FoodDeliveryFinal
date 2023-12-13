@@ -30,6 +30,9 @@ class MyApp extends StatelessWidget {
         //     primaryColor: secondaryColor,
         //     canvasColor: Colors.transparent),
         home: WelcomePage(),
+        routes: {
+          '/login': (context) => WelcomePage(),
+        },
         //home: MyHomePage(),
       ),
     );

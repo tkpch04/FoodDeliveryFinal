@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/model/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AccountPage extends StatefulWidget {
   final String uid;
@@ -19,11 +20,25 @@ class _AccountPageState extends State<AccountPage> {
     _userFuture = UserModel.getUserFromFirestore(widget.uid);
   }
 
+  // Function to handle user logout
+  Future<void> _handleLogout() async {
+    await FirebaseAuth.instance.signOut();
+    // Navigate to the login page or any other page you want after logout
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Account Page'),
+        actions: [
+          // Logout button
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: _handleLogout,
+          ),
+        ],
       ),
       body: FutureBuilder<UserModel?>(
         future: _userFuture,
