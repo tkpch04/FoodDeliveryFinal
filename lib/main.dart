@@ -6,6 +6,7 @@ import 'package:food_delivery_apps/pages/cart_page.dart';
 import 'package:food_delivery_apps/pages/account_page.dart';
 import 'package:food_delivery_apps/utils/theme_shared.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         //     primaryColor: secondaryColor,
         //     canvasColor: Colors.transparent),
         home: WelcomePage(),
+        //home: MyHomePage(),
       ),
     );
   }
@@ -99,8 +101,15 @@ class CartScreen extends StatelessWidget {
 class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Assuming you are using Firebase Authentication
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Get the UID from the current user
+    String uid = user?.uid ?? '';
     return Center(
-      child: AccountPage(),
+      child: AccountPage(
+        uid: uid,
+      ),
     );
   }
 }
