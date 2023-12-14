@@ -5,6 +5,7 @@ import '../model/cart_model.dart';
 import 'cart_page.dart';
 import 'package:food_delivery_apps/utils/utils.dart';
 import 'package:food_delivery_apps/model/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatefulWidget {
   final String uid;
@@ -38,7 +39,12 @@ class _HomePageState extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return const CartPage();
+              // Assuming you are using Firebase Authentication
+              User? user = FirebaseAuth.instance.currentUser;
+
+              // Mendapatkan Data User dari Uid
+              String uid = user?.uid ?? '';
+              return CartPage(uid: uid);
             },
           ),
         ),

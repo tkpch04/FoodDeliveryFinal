@@ -2,11 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery_apps/pages/transaksi_done.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:food_delivery_apps/model/user_model.dart';
+import 'package:food_delivery_apps/utils/utils.dart';
 
 import '../model/cart_model.dart';
 
-class CartPage extends StatelessWidget {
-  const CartPage({super.key});
+class CartPage extends StatefulWidget {
+  final String uid;
+  const CartPage({Key? key, required this.uid});
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  late Future<UserModel?> _userFuture;
+  bool isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _userFuture = UserModel.getUserFromFirestore(widget.uid);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +36,12 @@ class CartPage extends StatelessWidget {
       ),
       body: Consumer<CartModel>(
         builder: (context, value, child) {
-          // Group items by their details (name, price, image)
-
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Let's order fresh items for you
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
                   "My Cart",
                   style: GoogleFonts.notoSerif(
@@ -33,49 +50,39 @@ class CartPage extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // list view of cart
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: ListView.builder(
                     itemCount: value.cartItems.length,
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12),
                     itemBuilder: (context, index) {
-                      List<String> itemDetails = value.cartItems[index];
-
-                      // Find all items with the same details
-                      List<List<String>> identicalItems = value.cartItems
-                          .where((item) => item == itemDetails)
-                          .toList();
-
-                      int quantity = identicalItems.length;
-
                       return Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8)),
                           child: ListTile(
                             leading: Image.asset(
-                              identicalItems[0][2],
+                              value.cartItems[index][2],
                               height: 36,
                             ),
                             title: Text(
-                              '${itemDetails[0]} x$quantity', // Change here to include quantity
+                              value.cartItems[index][0],
                               style: const TextStyle(fontSize: 18),
                             ),
                             subtitle: Text(
-                              'Rp. ${itemDetails[1]} each',
+                              '\Rp. ' + value.cartItems[index][1],
                               style: const TextStyle(fontSize: 12),
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.cancel),
-                              onPressed: () {
-                                // Remove one identical item
-                                Provider.of<CartModel>(context, listen: false)
-                                    .removeItemFromCartByDetails(itemDetails);
-                              },
+                              onPressed: () =>
+                                  Provider.of<CartModel>(context, listen: false)
+                                      .removeItemFromCart(index),
                             ),
                           ),
                         ),
@@ -84,6 +91,9 @@ class CartPage extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // total amount + pay now
+
               Padding(
                 padding: const EdgeInsets.all(36.0),
                 child: Container(
@@ -104,7 +114,7 @@ class CartPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Rp. ${value.calculateTotal()}',
+                            '\Rp. ${value.calculateTotal()}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -115,47 +125,102 @@ class CartPage extends StatelessWidget {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Display payment confirmation dialog
+                          // Tampilkan notifikasi dan tanggapi aksi pengguna
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: const Text("Konfirmasi Pesanan"),
+                                title: Text("Konfirmasi Pesanan"),
                                 content: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    FutureBuilder<UserModel?>(
+                                      future: _userFuture,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return CircularProgressIndicator();
+                                        } else if (snapshot.hasError) {
+                                          return Text(
+                                              "Error: ${snapshot.error}");
+                                        } else if (!snapshot.hasData ||
+                                            snapshot.data == null) {
+                                          return Center(
+                                            child: Text(
+                                              "User not found",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          );
+                                        } else {
+                                          return Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                    'Atas Nama: ${snapshot.data!.username ?? "N/A"}',
+                                                    style: SafeGoogleFont(
+                                                      'Roboto',
+                                                      fontSize: 30,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Colors.black,
+                                                    )
+                                                    // TextStyle(fontSize: 18),
+                                                    ),
+                                                SizedBox(height: 12),
+                                                Text(
+                                                    'Akan di kirimkan ke Lokasi: ${snapshot.data!.lokasi ?? "N/A"}',
+                                                    style: SafeGoogleFont(
+                                                      'Roboto',
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      color: Colors.black,
+                                                    )),
+                                                SizedBox(height: 26),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                    Text(
                                         "Anda akan menyelesaikan pesanan dengan total:"),
                                     const SizedBox(height: 8),
-                                    Text('Rp. ${value.calculateTotal()}'),
+                                    Text('\Rp. ${value.calculateTotal()}'),
                                     const SizedBox(height: 16),
-                                    const Text(
+                                    Text(
                                         "Apakah Anda yakin ingin melanjutkan?"),
                                   ],
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pop(context); // Close dialog
+                                      Navigator.pop(context); // Tutup dialog
                                     },
-                                    child: const Text("Tidak"),
+                                    child: Text("Tidak"),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Clear the cart and navigate to success page
+                                      // Hapus semua item dari keranjang
                                       Provider.of<CartModel>(context,
                                               listen: false)
                                           .clearCart();
-                                      Navigator.pop(context); // Close dialog
+                                      // Tutup dialog
+                                      Navigator.pop(context);
+                                      // Navigasi ke halaman transaksi berhasil
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const TransaksiBerhasil(),
+                                              TransaksiBerhasil(),
                                         ),
                                       );
                                     },
-                                    child: const Text("Ya"),
+                                    child: Text("Ya"),
                                   ),
                                 ],
                               );
@@ -163,13 +228,13 @@ class CartPage extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          primary: Colors.green,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),
                         ),
-                        child: const Row(
-                          children: [
+                        child: Row(
+                          children: const [
                             Text(
                               'Pay Now',
                               style: TextStyle(color: Colors.white),

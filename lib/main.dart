@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/model/cart_model.dart';
+import 'package:food_delivery_apps/pages/splash_page.dart';
 import 'package:food_delivery_apps/pages/welcome_page.dart';
 import 'package:food_delivery_apps/pages/home_page.dart';
 import 'package:food_delivery_apps/pages/cart_page.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const WelcomePage(),
+      home: SplashPage(),
       routes: {
         '/login': (context) => const WelcomePage(),
       },
@@ -109,8 +110,15 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CartPage(),
+    // Assuming you are using Firebase Authentication
+    User? user = FirebaseAuth.instance.currentUser;
+
+    // Mendapatkan Data User dari Uid
+    String uid = user?.uid ?? '';
+    return Center(
+      child: CartPage(
+        uid: uid,
+      ),
     );
   }
 }
