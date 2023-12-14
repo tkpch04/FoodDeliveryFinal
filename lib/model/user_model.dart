@@ -5,20 +5,30 @@ class UserModel {
   String? email;
   String? username;
   String? lokasi;
+  String? profileImageUrl; // Add this property
 
-  UserModel({this.uid, this.email, this.username, this.lokasi});
+  UserModel(
+      {this.uid, this.email, this.username, this.lokasi, this.profileImageUrl});
 
   // data dari server
   factory UserModel.fromMap(map) {
     return UserModel(
-        uid: map['uid'],
-        email: map['email'],
-        username: map['username'],
-        lokasi: map['lokasi']);
+      uid: map['uid'],
+      email: map['email'],
+      username: map['username'],
+      lokasi: map['lokasi'],
+      profileImageUrl: map['profileImageUrl'], // Include profileImageUrl
+    );
   }
 
   Map<String, dynamic> toMap() {
-    return {'uid': uid, 'email': email, 'username': username, 'lokasi': lokasi};
+    return {
+      'uid': uid,
+      'email': email,
+      'username': username,
+      'lokasi': lokasi,
+      'profileImageUrl': profileImageUrl, // Include profileImageUrl
+    };
   }
 
   // Dapatkan data pengguna dari Firestore berdasarkan UID

@@ -4,16 +4,25 @@ import 'package:food_delivery_apps/pages/welcome_page.dart';
 import 'package:food_delivery_apps/pages/home_page.dart';
 import 'package:food_delivery_apps/pages/cart_page.dart';
 import 'package:food_delivery_apps/pages/account_page.dart';
-import 'package:food_delivery_apps/utils/theme_shared.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ImageProviderModel()),
+        ChangeNotifierProvider(create: (context) => CartModel()),
+        // Other providers if any
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,25 +30,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CartModel(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        // theme: ThemeData(
-        //     primarySwatch: Colors.cyan,
-        //     primaryColor: secondaryColor,
-        //     canvasColor: Colors.transparent),
-        home: WelcomePage(),
-        routes: {
-          '/login': (context) => WelcomePage(),
-        },
-        //home: MyHomePage(),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const WelcomePage(),
+      routes: {
+        '/login': (context) => const WelcomePage(),
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -48,9 +51,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    HomeScreen(),
-    CartScreen(),
-    AccountScreen(),
+    const HomeScreen(),
+    const CartScreen(),
+    const AccountScreen(),
   ];
 
   @override
@@ -64,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _currentIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -84,6 +87,8 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Assuming you are using Firebase Authentication
@@ -92,22 +97,27 @@ class HomeScreen extends StatelessWidget {
     // Mendapatkan Data User dari Uid
     String uid = user?.uid ?? '';
     return Center(
-        child: HomePage(
-      uid: uid,
-    ));
+      child: HomePage(
+        uid: uid,
+      ),
+    );
   }
 }
 
 class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: CartPage(),
     );
   }
 }
 
 class AccountScreen extends StatelessWidget {
+  const AccountScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Assuming you are using Firebase Authentication

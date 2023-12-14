@@ -6,7 +6,7 @@ import 'package:food_delivery_apps/pages/transaksi_done.dart';
 import '../model/cart_model.dart';
 
 class CartPage extends StatelessWidget {
-  const CartPage({Key? key});
+  const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +18,13 @@ class CartPage extends StatelessWidget {
       ),
       body: Consumer<CartModel>(
         builder: (context, value, child) {
+          // Group items by their details (name, price, image)
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Let's order fresh items for you
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
                   "My Cart",
                   style: GoogleFonts.notoSerif(
@@ -32,39 +33,49 @@ class CartPage extends StatelessWidget {
                   ),
                 ),
               ),
-
-              // list view of cart
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: ListView.builder(
                     itemCount: value.cartItems.length,
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     itemBuilder: (context, index) {
+                      List<String> itemDetails = value.cartItems[index];
+
+                      // Find all items with the same details
+                      List<List<String>> identicalItems = value.cartItems
+                          .where((item) => item == itemDetails)
+                          .toList();
+
+                      int quantity = identicalItems.length;
+
                       return Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Container(
                           decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8)),
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           child: ListTile(
                             leading: Image.asset(
-                              value.cartItems[index][2],
+                              identicalItems[0][2],
                               height: 36,
                             ),
                             title: Text(
-                              value.cartItems[index][0],
+                              '${itemDetails[0]} x$quantity', // Change here to include quantity
                               style: const TextStyle(fontSize: 18),
                             ),
                             subtitle: Text(
-                              '\Rp. ' + value.cartItems[index][1],
+                              'Rp. ${itemDetails[1]} each',
                               style: const TextStyle(fontSize: 12),
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.cancel),
-                              onPressed: () =>
-                                  Provider.of<CartModel>(context, listen: false)
-                                      .removeItemFromCart(index),
+                              onPressed: () {
+                                // Remove one identical item
+                                Provider.of<CartModel>(context, listen: false)
+                                    .removeItemFromCartByDetails(itemDetails);
+                              },
                             ),
                           ),
                         ),
@@ -73,9 +84,6 @@ class CartPage extends StatelessWidget {
                   ),
                 ),
               ),
-
-              // total amount + pay now
-
               Padding(
                 padding: const EdgeInsets.all(36.0),
                 child: Container(
@@ -96,7 +104,7 @@ class CartPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '\Rp. ${value.calculateTotal()}',
+                            'Rp. ${value.calculateTotal()}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -107,49 +115,47 @@ class CartPage extends StatelessWidget {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Tampilkan notifikasi dan tanggapi aksi pengguna
+                          // Display payment confirmation dialog
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text("Konfirmasi Pesanan"),
+                                title: const Text("Konfirmasi Pesanan"),
                                 content: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                         "Anda akan menyelesaikan pesanan dengan total:"),
                                     const SizedBox(height: 8),
-                                    Text('\Rp. ${value.calculateTotal()}'),
+                                    Text('Rp. ${value.calculateTotal()}'),
                                     const SizedBox(height: 16),
-                                    Text(
+                                    const Text(
                                         "Apakah Anda yakin ingin melanjutkan?"),
                                   ],
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.pop(context); // Tutup dialog
+                                      Navigator.pop(context); // Close dialog
                                     },
-                                    child: Text("Tidak"),
+                                    child: const Text("Tidak"),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Hapus semua item dari keranjang
+                                      // Clear the cart and navigate to success page
                                       Provider.of<CartModel>(context,
                                               listen: false)
                                           .clearCart();
-                                      // Tutup dialog
-                                      Navigator.pop(context);
-                                      // Navigasi ke halaman transaksi berhasil
+                                      Navigator.pop(context); // Close dialog
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              TransaksiBerhasil(),
+                                              const TransaksiBerhasil(),
                                         ),
                                       );
                                     },
-                                    child: Text("Ya"),
+                                    child: const Text("Ya"),
                                   ),
                                 ],
                               );
@@ -157,13 +163,13 @@ class CartPage extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.green,
+                          backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),
                         ),
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          children: [
                             Text(
                               'Pay Now',
                               style: TextStyle(color: Colors.white),

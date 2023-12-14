@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:food_delivery_apps/main.dart';
+// ignore: unused_import
 import 'package:food_delivery_apps/pages/home_page.dart';
 import 'package:food_delivery_apps/pages/login_page.dart';
 import 'package:food_delivery_apps/model/user_model.dart';
 
 class Controller {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final namaTextController = TextEditingController();
   final lokasiTextController = TextEditingController();
 
@@ -20,7 +21,7 @@ class Controller {
           .then((uid) => {
                 Fluttertoast.showToast(msg: "Login Berhasil"),
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(builder: (context) => const MyHomePage()),
                 )
               });
     } catch (e) {
@@ -38,7 +39,7 @@ class Controller {
 
       Fluttertoast.showToast(msg: "Akun berhasil dibuat");
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } catch (e) {
       Fluttertoast.showToast(msg: e.toString());

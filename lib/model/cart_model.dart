@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CartModel extends ChangeNotifier {
-  // list of items on sale
-  final List _shopItems = const [
+  final List<List<dynamic>> _shopItems = const [
     // [ itemName, itemPrice, imagePath, color, description ]
     [
       "Beef Burger",
@@ -61,62 +60,135 @@ class CartModel extends ChangeNotifier {
       "Cola-Cola Seger",
     ],
   ];
-
-  // list of cart items
-  List _cartItems = [];
+  final List<List<String>> _cartItems = [];
 
   get cartItems => _cartItems;
 
   get shopItems => _shopItems;
 
-  // add item to cart
   void addItemToCart(int index) {
-    _cartItems.add(_shopItems[index]);
+    final List<String> itemToAdd = [
+      _shopItems[index][0], // itemName
+      _shopItems[index][1], // itemPrice
+      _shopItems[index][2], // imagePath
+      '1', // default quantity
+    ];
+
+    int existingIndex = _cartItems.indexWhere(
+      (cartItem) => cartItem
+          .sublist(0, 2)
+          .every((element) => itemToAdd.contains(element)),
+    );
+
+    if (existingIndex != -1) {
+      _cartItems[existingIndex][3] =
+          (int.parse(_cartItems[existingIndex][3]) + 1).toString();
+    } else {
+      _cartItems.add(itemToAdd);
+    }
+
     notifyListeners();
   }
 
-  // remove item from cart
   void removeItemFromCart(int index) {
     _cartItems.removeAt(index);
     notifyListeners();
   }
 
-  // Untuk Clean di Cart
   void clearCart() {
-    cartItems.clear();
+    _cartItems.clear();
     notifyListeners();
   }
 
-  // calculate total price
   String calculateTotal() {
     double totalPrice = 0;
-    for (int i = 0; i < cartItems.length; i++) {
-      totalPrice += double.parse(cartItems[i][1]);
+    for (int i = 0; i < _cartItems.length; i++) {
+      String itemPrice = _cartItems[i][1];
+      String quantity = _cartItems[i][3];
+
+      itemPrice = itemPrice.replaceAll(',', '.');
+
+      try {
+        double price = double.parse(itemPrice);
+        int qty = int.parse(quantity);
+
+        totalPrice += price * qty;
+      } catch (e) {
+        print('Error parsing itemPrice or quantity: $e');
+      }
     }
     return totalPrice.toStringAsFixed(3);
   }
+
+  Map<List<String>, List<List<String>>> groupItemsByDetails() {
+    Map<List<String>, List<List<String>>> groupedItems = {};
+
+    for (List<String> cartItem in _cartItems) {
+      List<String> itemDetails = cartItem.sublist(0, 2);
+
+      if (groupedItems.containsKey(itemDetails)) {
+        int existingIndex = groupedItems[itemDetails]!.indexWhere(
+          (identicalItem) => identicalItem.contains(cartItem[1]),
+        );
+
+        if (existingIndex != -1) {
+          groupedItems[itemDetails]![existingIndex][3] =
+              (int.parse(groupedItems[itemDetails]![existingIndex][3]) + 1)
+                  .toString();
+        } else {
+          groupedItems[itemDetails]!.add([...cartItem, '1']);
+        }
+      } else {
+        groupedItems[itemDetails] = [cartItem];
+      }
+    }
+
+    return groupedItems;
+  }
+
+  void removeItemFromCartByDetails(List<String> itemDetails) {
+    int existingIndex = _cartItems.indexWhere(
+      (cartItem) => cartItem
+          .sublist(0, 2)
+          .every((element) => itemDetails.contains(element)),
+    );
+
+    if (existingIndex != -1) {
+      _cartItems[existingIndex][3] =
+          (int.parse(_cartItems[existingIndex][3]) - 1).toString();
+
+      if (int.parse(_cartItems[existingIndex][3]) == 0) {
+        _cartItems.removeAt(existingIndex);
+      }
+    }
+
+    notifyListeners();
+  }
+
+  void addnumbercart(int menuId, bool isAdd) {
+    int existingIndex = _cartItems.indexWhere(
+      (cartItem) => cartItem
+          .sublist(0, 2)
+          .every((element) => _shopItems[menuId].contains(element)),
+    );
+
+    if (existingIndex != -1) {
+      _cartItems[existingIndex][3] =
+          (int.parse(_cartItems[existingIndex][3]) + (isAdd ? 1 : -1))
+              .toString();
+
+      if (int.parse(_cartItems[existingIndex][3]) == 0) {
+        _cartItems.removeAt(existingIndex);
+      }
+    } else {
+      _cartItems.add([
+        _shopItems[menuId][0], // itemName
+        _shopItems[menuId][1], // itemPrice
+        _shopItems[menuId][2], // imagePath
+        (isAdd ? 1 : 0).toString(), // quantity
+      ]);
+    }
+
+    notifyListeners();
+  }
 }
-
-// Untuk sebuah fungsi keranjang notif jumlah nya saja
-// void addnumbercart(BuildContext context, int menuId, bool isAdd) {
-//   CartModel _cart = Provider.of<CartModel>(context, listen: false);
-
-//   if (_cart.cartItems.where((element) => menuId == element.menuId).isNotEmpty) {
-//     var index =
-//         _cart.cartItems.indexWhere((element) => element.menuId == menuId);
-//     _cart.cartItems[index].quantity = (isAdd)
-//         ? _cart.cartItems[index].quantity + 1
-//         : (_cart.cartItems[index].quantity > 0)
-//             ? _cart.cartItems[index].quantity - 1
-//             : 0;
-//     _cart.total = (isAdd)
-//         ? _cart.total + 1
-//         : (_cart.total > 0)
-//             ? _cart.total - 1
-//             : 0;
-//   } else {
-//     _cart.cartItems.add(CartModel(menuId: menuId, quantity: 1));
-//     _cart.total = _cart.total + 1;
-//   }
-//   _cart.notifyListeners();
-// }

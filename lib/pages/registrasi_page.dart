@@ -23,6 +23,7 @@ class _RegistrasiState extends State<Registrasi> {
   final konfirmasiPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final controller = Controller();
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryColor,
@@ -37,7 +38,7 @@ class _RegistrasiState extends State<Registrasi> {
                 height: 150,
                 width: 150,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               Text(
@@ -48,7 +49,7 @@ class _RegistrasiState extends State<Registrasi> {
               Form(
                 key: _formKey,
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -60,13 +61,13 @@ class _RegistrasiState extends State<Registrasi> {
                           return null;
                         },
                         controller: controller.namaTextController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             prefix: Icon(Icons.person_2_outlined),
                             labelText: ('Nama'),
                             hintText: ("Adi Kuswanto"),
                             border: OutlineInputBorder()),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       TextFormField(
@@ -77,7 +78,7 @@ class _RegistrasiState extends State<Registrasi> {
                           return null;
                         },
                         controller: emailTextController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             prefix: Icon(Icons.messenger_outline_outlined),
                             labelText: ('Email'),
                             hintText: ("123@gmail.com"),
@@ -95,10 +96,10 @@ class _RegistrasiState extends State<Registrasi> {
                         },
                         controller: passwordTextController,
                         decoration: InputDecoration(
-                          prefix: Icon(Icons.fingerprint),
+                          prefix: const Icon(Icons.fingerprint),
                           labelText: ('Password'),
                           hintText: ("Password"),
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           suffixIcon: InkWell(
                             onTap:
                                 _togglePasswordView, // Memanggil fungsi untuk mengganti tampilan password
@@ -111,7 +112,7 @@ class _RegistrasiState extends State<Registrasi> {
                         ),
                         obscureText: _isHiddenPassword,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       TextFormField(
@@ -126,10 +127,10 @@ class _RegistrasiState extends State<Registrasi> {
                         },
                         controller: konfirmasiPasswordController,
                         decoration: InputDecoration(
-                          prefix: Icon(Icons.key_off_rounded),
+                          prefix: const Icon(Icons.key_off_rounded),
                           labelText: ('Konfirmasi Password'),
                           hintText: ("Konfirmasi Password"),
-                          border: OutlineInputBorder(),
+                          border: const OutlineInputBorder(),
                           suffixIcon: InkWell(
                             onTap:
                                 _togglePasswordView, // Memanggil fungsi untuk mengganti tampilan password
@@ -142,7 +143,7 @@ class _RegistrasiState extends State<Registrasi> {
                         ),
                         obscureText: _isHiddenPassword,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       TextFormField(
@@ -153,13 +154,13 @@ class _RegistrasiState extends State<Registrasi> {
                           return null;
                         },
                         controller: controller.lokasiTextController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                             prefix: Icon(Icons.location_city_outlined),
                             labelText: ('Lokasi'),
                             hintText: ("JL.Arif rahman hakim"),
                             border: OutlineInputBorder()),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
@@ -167,13 +168,6 @@ class _RegistrasiState extends State<Registrasi> {
                                 passwordTextController.text);
                           }
                         },
-                        child: Text(
-                          "Registrasi",
-                          style: blackTextStyle.copyWith(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
-                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
                           shape: RoundedRectangleBorder(
@@ -181,12 +175,19 @@ class _RegistrasiState extends State<Registrasi> {
                           ),
                         ).copyWith(
                           minimumSize: MaterialStateProperty.all(
-                            Size(double.infinity,
+                            const Size(double.infinity,
                                 50), // Atur tinggi sesuai kebutuhan
                           ),
                         ),
+                        child: Text(
+                          "Registrasi",
+                          style: blackTextStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
+                        ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       TextButton(
@@ -194,11 +195,11 @@ class _RegistrasiState extends State<Registrasi> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoginPage(),
+                              builder: (context) => const LoginPage(),
                             ),
                           );
                         },
-                        child: Text("Suda punya akun? Login"),
+                        child: const Text("Suda punya akun? Login"),
                       )
                     ],
                   ),
