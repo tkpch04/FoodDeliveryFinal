@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: _isHiddenPassword,
                       ),
                       const SizedBox(height: 20),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
                           controller.signIn(context, emailTextController.text,
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ).copyWith(
                           minimumSize: MaterialStateProperty.all(
-                            Size(double.infinity,
+                            const Size(double.infinity,
                                 50), // Atur tinggi sesuai kebutuhan
                           ),
                         ),
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                               color: Colors.white),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       TextButton(
@@ -130,11 +130,11 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Registrasi(),
+                              builder: (context) => const Registrasi(),
                             ),
                           );
                         },
-                        child: Text("Belum punya akun? Registrasi"),
+                        child: const Text("Belum punya akun? Registrasi"),
                       )
                     ],
                   ),

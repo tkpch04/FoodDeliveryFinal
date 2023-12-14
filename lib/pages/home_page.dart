@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-//import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../components/grocery_item_tile.dart';
 import '../model/cart_model.dart';
@@ -10,6 +8,7 @@ import 'package:food_delivery_apps/model/user_model.dart';
 
 class HomePage extends StatefulWidget {
   final String uid;
+
   const HomePage({super.key, required this.uid});
 
   @override
@@ -18,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<UserModel?> _userFuture;
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return CartPage();
+              return const CartPage();
             },
           ),
         ),
@@ -47,72 +47,71 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                margin: EdgeInsets.fromLTRB(0, 0, 11.5, 2),
-                width: 17,
-                height: 20,
-                child: Image.asset(
-                    'assets/design/images/iconly-bold-location.png'),
-              ),
-              FutureBuilder<UserModel?>(
-                future: _userFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else if (!snapshot.hasData || snapshot.data == null) {
-                    return Center(
-                      child: Text(
-                        "Lokasi Tidak Diketahui",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    );
-                  } else {
-                    return Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 1),
-                          Text(
-                            '${snapshot.data!.lokasi ?? "N/A"}',
-                            style: SafeGoogleFont(
-                              'Roboto',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              height: 1.1725,
-                              color: Color(0xff0c0c0c),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 17,
+                  height: 20,
+                  child: Image.asset(
+                      'assets/design/images/iconly-bold-location.png'),
+                ),
+                FutureBuilder<UserModel?>(
+                  future: _userFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else if (!snapshot.hasData || snapshot.data == null) {
+                      return const Center(
+                        child: Text(
+                          "Lokasi Tidak Diketahui",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      );
+                    } else {
+                      return Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 1),
+                            Text(
+                              snapshot.data!.lokasi ?? "N/A",
+                              style: SafeGoogleFont(
+                                'Roboto',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                height: 1.1725,
+                                color: const Color(0xff0c0c0c),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(3, 0, 11.5, 0),
-                width: 17,
-                height: 20,
-                child: Image.asset(
-                    'assets/design/images/iconly-light-arrow-down-2-pcZ.png'),
-              ),
-            ],
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
+                SizedBox(
+                  width: 17,
+                  height: 20,
+                  child: Image.asset(
+                      'assets/design/images/iconly-light-arrow-down-2-pcZ.png'),
+                ),
+              ],
+            ),
           ),
-          Container(
-            padding: EdgeInsets.fromLTRB(0, 4.69, 4.69, 0),
-            width: double.infinity,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4.69, 4.69, 0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(
                   child: Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 26.13, 0),
-                    constraints: BoxConstraints(
+                    constraints: const BoxConstraints(
                       maxWidth: 204,
                     ),
                     child: Text(
@@ -121,11 +120,11 @@ class _HomePageState extends State<HomePage> {
                           fontSize: 27,
                           fontWeight: FontWeight.w500,
                           height: 1.1725,
-                          color: Color(0xff0c0c0c)),
+                          color: const Color(0xff0c0c0c)),
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   width: 92.19,
                   height: 90.63,
                   child: Image.asset(
@@ -137,27 +136,28 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          SizedBox(width: 50),
-          Container(
-            margin: EdgeInsets.fromLTRB(0, 0, 0, 15),
+          const SizedBox(height: 20), // Adjust the spacing here
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 0, 15),
             child: Text(
-              '   Categories',
+              'Categories',
               style: SafeGoogleFont(
                 'Roboto',
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 height: 1.1725,
-                color: Color.fromARGB(255, 100, 68, 68),
+                color: const Color.fromARGB(255, 100, 68, 68),
               ),
             ),
           ),
           Container(
             height: 30,
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             decoration: BoxDecoration(
-              color: Color(0xffff9431),
+              color: const Color(0xffff9431),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Center(
+            child: const Center(
               child: Text(
                 '🍔 Burger',
               ),
@@ -175,7 +175,6 @@ class _HomePageState extends State<HomePage> {
               builder: (context, value, child) {
                 return GridView.builder(
                   padding: const EdgeInsets.all(12),
-                  //physics: const NeverScrollableScrollPhysics(),
                   physics: const ScrollPhysics(),
                   itemCount: value.shopItems.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -189,7 +188,6 @@ class _HomePageState extends State<HomePage> {
                       imagePath: value.shopItems[index][2],
                       color: value.shopItems[index][3],
                       description: value.shopItems[index][4],
-                      //onPressed: () {},
                       onPressed: () =>
                           Provider.of<CartModel>(context, listen: false)
                               .addItemToCart(index),

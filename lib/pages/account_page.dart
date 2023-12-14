@@ -1,11 +1,34 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/model/user_model.dart';
+import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+
+class ImageProviderModel extends ChangeNotifier {
+  XFile? _image;
+
+  XFile? get image => _image;
+
+  void pickImage() async {
+    try {
+      final picker = ImagePicker();
+      XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        _image = pickedFile;
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    }
+  }
+}
 
 class AccountPage extends StatefulWidget {
   final String uid;
 
-  AccountPage({Key? key, required this.uid}) : super(key: key);
+  const AccountPage({super.key, required this.uid});
 
   @override
   _AccountPageState createState() => _AccountPageState();
@@ -21,101 +44,147 @@ class _AccountPageState extends State<AccountPage> {
     _userFuture = UserModel.getUserFromFirestore(widget.uid);
   }
 
-  // Function to handle user logout
   Future<void> _handleLogout() async {
     await FirebaseAuth.instance.signOut();
-    // Navigate to the login page or any other page you want after logout
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  void _toggleDarkMode() {
+    setState(() {
+      isDarkMode = !isDarkMode;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Account Page',
+        title: const Text(
+          'Account',
           textAlign: TextAlign.center,
+          style: TextStyle(fontFamily: 'Pacifico', fontSize: 24),
         ),
         actions: [
-          // Logout button
           IconButton(
-            icon: Icon(Icons.exit_to_app),
+            icon: Icon(
+              isDarkMode ? Icons.light_mode : Icons.dark_mode,
+            ),
+            onPressed: _toggleDarkMode,
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
             onPressed: _handleLogout,
           ),
         ],
       ),
-      body: FutureBuilder<UserModel?>(
-        future: _userFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text("Error: ${snapshot.error}");
-          } else if (!snapshot.hasData || snapshot.data == null) {
-            return Center(
-              child: Text(
-                "User not found",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
-              ),
-            );
-          } else {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Username: ${snapshot.data!.username ?? "N/A"}',
+      body: Consumer<ImageProviderModel>(
+        builder: (context, imageProvider, child) {
+          return FutureBuilder<UserModel?>(
+            future: _userFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              } else if (!snapshot.hasData || snapshot.data == null) {
+                return const Center(
+                  child: Text(
+                    "User not found",
+                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18),
                   ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Email: ${snapshot.data!.email ?? "N/A"}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    'Lokasi: ${snapshot.data!.lokasi ?? "N/A"}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 24),
-                  Row(
+                );
+              } else {
+                return SingleChildScrollView(
+                  child: Column(
                     children: [
-                      Text('Dark Mode'),
-                      Switch(
-                        value: isDarkMode,
-                        onChanged: (value) {
-                          // Implement your dark mode logic here
-                          setState(() {
-                            isDarkMode = value;
-                            // You can use isDarkMode to apply dark mode
-                            // styles or themes to your app.
-                          });
-                        },
+                      Container(
+                        height: 200,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/background_image.jpg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              imageProvider.pickImage();
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: imageProvider.image != null
+                                      ? FileImage(
+                                          File(imageProvider.image!.path))
+                                      : (snapshot.data?.profileImageUrl != null
+                                                  ? NetworkImage(snapshot
+                                                      .data!.profileImageUrl!)
+                                                  : const AssetImage(
+                                                      'assets/default-avatar.png'))
+                                              as ImageProvider<Object>? ??
+                                          const AssetImage(
+                                              'assets/default-avatar.png'),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  snapshot.data!.username ?? "N/A",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Card(
+                        margin: const EdgeInsets.all(16),
+                        elevation: 8,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.email,
+                                      size: 20, color: Colors.blue),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Email       : ${snapshot.data!.email ?? "N/A"}',
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on,
+                                      size: 20, color: Colors.green),
+                                  const SizedBox(width: 7),
+                                  Text(
+                                    'Location  : ${snapshot.data!.lokasi ?? "N/A"}',
+                                    style: const TextStyle(fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            );
-          }
+                );
+              }
+            },
+          );
         },
       ),
-    );
-  }
-
-  ThemeData get lightTheme {
-    return ThemeData(
-      brightness: Brightness.light,
-      // Define your light theme colors, fonts, etc.
-    );
-  }
-
-  ThemeData get darkTheme {
-    return ThemeData(
-      brightness: Brightness.dark,
-      // Define your dark theme colors, fonts, etc.
     );
   }
 }

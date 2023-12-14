@@ -1,11 +1,15 @@
+// ignore: unnecessary_import
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'package:google_fonts/google_fonts.dart';
 
+// ignore: must_be_immutable
 class GroceryItemTile extends StatelessWidget {
   final String itemName;
   final String itemPrice;
   final String imagePath;
+  // ignore: prefer_typing_uninitialized_variables
   final color;
   void Function()? onPressed;
   final String description;
@@ -46,13 +50,13 @@ class GroceryItemTile extends StatelessWidget {
             // item name
             Text(
               itemName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
             Text(
               description,
-              style: TextStyle(fontSize: 10),
+              style: const TextStyle(fontSize: 10),
               textAlign: TextAlign.center,
             ),
 
@@ -60,8 +64,8 @@ class GroceryItemTile extends StatelessWidget {
               onPressed: onPressed,
               color: color,
               child: Text(
-                '\Rp. ' + itemPrice,
-                style: TextStyle(
+                'Rp. $itemPrice',
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

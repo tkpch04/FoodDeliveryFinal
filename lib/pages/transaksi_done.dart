@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/main.dart';
+import 'package:food_delivery_apps/model/cart_model.dart';
+import 'package:provider/provider.dart';
 
 class TransaksiBerhasil extends StatelessWidget {
+  const TransaksiBerhasil({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,35 +14,57 @@ class TransaksiBerhasil extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.check_circle,
               color: Colors.white,
               size: 100.0,
             ),
-            SizedBox(height: 20.0),
-            Text(
-              'Transaksi Berhasil',
+            const SizedBox(height: 20.0),
+            const Text(
+              'Transaksi Berhasil!',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 100.0),
+            const SizedBox(height: 20.0),
+            Consumer<CartModel>(
+              builder: (context, value, child) {
+                return Column(
+                  children: value.cartItems.map<Widget>((item) {
+                    return ListTile(
+                      title: Text(
+                        item[0],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Rp. ${item[1]} x ${item[3]}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            const SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(builder: (context) => const MyHomePage()),
                 );
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue, // Warna latar belakang tombol biru
+                backgroundColor: Colors.blue,
               ),
-              child: Text(
+              child: const Text(
                 'Kembali ke Homepage',
                 style: TextStyle(
-                  color: Colors.white, // Warna teks putih
+                  color: Colors.white,
                 ),
               ),
             ),

@@ -43,7 +43,7 @@ class _WelcomePageState extends State<WelcomePage> {
               const SizedBox(
                 height: 51,
               ),
-              Container(
+              SizedBox(
                 height: 60,
                 width: MediaQuery.of(context).size.width - 2 * defaultMargin,
                 child: ElevatedButton(
@@ -51,9 +51,15 @@ class _WelcomePageState extends State<WelcomePage> {
                     // modal tampilan registrasi screen
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Registrasi()),
+                      MaterialPageRoute(builder: (context) => const Registrasi()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
                   child: Text(
                     'Buat Akun',
                     style: blackTextStyle.copyWith(
@@ -61,27 +67,26 @@ class _WelcomePageState extends State<WelcomePage> {
                         fontWeight: FontWeight.w500,
                         color: Colors.white),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(
                 height: 15,
               ),
-              Container(
+              SizedBox(
                 height: 60,
                 width: MediaQuery.of(context).size.width - 2 * defaultMargin,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          side: const BorderSide(color: Colors.black54),
+                          borderRadius: BorderRadius.circular(15))),
                   child: Text(
                     'Login',
                     style: blackTextStyle.copyWith(
@@ -89,11 +94,6 @@ class _WelcomePageState extends State<WelcomePage> {
                         fontWeight: FontWeight.w500,
                         color: Colors.black),
                   ),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: Colors.black54),
-                          borderRadius: BorderRadius.circular(15))),
                 ),
               )
             ]),
