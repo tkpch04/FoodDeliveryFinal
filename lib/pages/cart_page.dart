@@ -29,11 +29,14 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(""),
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-      ),
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(15),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text(""),
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+          )),
       body: Consumer<CartModel>(
         builder: (context, value, child) {
           return Column(
@@ -55,40 +58,54 @@ class _CartPageState extends State<CartPage> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
-                  child: ListView.builder(
-                    itemCount: value.cartItems.length,
-                    padding: EdgeInsets.all(12),
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(8)),
-                          child: ListTile(
-                            leading: Image.asset(
-                              value.cartItems[index][2],
-                              height: 36,
-                            ),
-                            title: Text(
-                              value.cartItems[index][0],
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            subtitle: Text(
-                              '\Rp. ' + value.cartItems[index][1],
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.cancel),
-                              onPressed: () =>
-                                  Provider.of<CartModel>(context, listen: false)
-                                      .removeItemFromCart(index),
-                            ),
+                  child: value.cartItems.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Daftar pesananmu kosong, \n isi dengan pilihan menu lezat yuk',
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
                           ),
+                        )
+                      : ListView.builder(
+                          itemCount: value.cartItems.length,
+                          padding: EdgeInsets.all(12),
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: ListTile(
+                                  leading: Image.asset(
+                                    value.cartItems[index][2],
+                                    height: 36,
+                                  ),
+                                  title: Text(
+                                    //value.cartItems[index][0],
+                                    '${value.cartItems[index][0]} x${value.cartItems[index][5]}', // Menampilkan judul dan quantity
+                                    style: const TextStyle(
+                                        fontSize: 18, color: Colors.black),
+                                  ),
+                                  subtitle: Text(
+                                    '\Rp. ' + value.cartItems[index][1],
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.black),
+                                  ),
+                                  trailing: IconButton(
+                                    color: Colors.black,
+                                    icon: const Icon(Icons.cancel),
+                                    onPressed: () => Provider.of<CartModel>(
+                                            context,
+                                            listen: false)
+                                        .removeItemFromCart(index),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ),
 

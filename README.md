@@ -16,6 +16,7 @@ git clone https://github.com/fathurohmansf/FoodDeliveryApps.git
 ## Panduan Penggunaan Aplikasi
 
 -Buka aplikasi
+-Lalu akan muncul splashscreen,klik tombol ">" dan akan di arahkan ke "WELCOME PAGE"
 -Jika anda belum mempunyai akun,anda harus membuat akun terlebih dahulu dengan klik tombol "BUAT AKUN" tapi jika sebelum nya sudah mempunyai atau sudah pernah masuk ke dalam aplikasi,anda bisa klik tombol "LOGIN"
 
 (Untuk Yang Belum Mempunyai Akun)
@@ -36,8 +37,11 @@ git clone https://github.com/fathurohmansf/FoodDeliveryApps.git
 -Jika sudah,anda bisa melihat pesanan anda di keranjang belanja atau anda bisa klik menu "Cart"
 -Jika sudah masuk,anda akan melihat pesanan anda,jika anda ingin menghapus pesanan klik tombol silang(x) pada bagian kanan
 -Jika anda ingin meneruskan pembelian,klik "PAY NOW"
--Anda akan mendapatkan konfirmasi pesan,klik "YA"
+-Anda akan mendapatkan konfirmasi pesanan,terdapat detail transaksi,jika sudah benar klik "YA"
 -Jika sudah,berarti transaksi anda berhasil
+-Di "Account Page" terdapat detail nama,email dan lokasi anda
+-Terdapat juga foto profile yang ketika di klik akan dialihkan ke dalam galeri handphone
+-Dan di pojok kanan atas ada tombol "Logout" untuk keluar
 
 ## Stuktur Project
 

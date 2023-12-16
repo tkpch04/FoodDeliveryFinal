@@ -28,13 +28,15 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(""),
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-      ),
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(5),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text(""),
+            backgroundColor: Colors.transparent,
+            elevation: 0.0,
+          )),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
@@ -92,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 height: 1.1725,
-                                color: const Color(0xff0c0c0c),
+                                //color: const Color(0xff0c0c0c),
                               ),
                             ),
                           ],
@@ -121,12 +123,14 @@ class _HomePageState extends State<HomePage> {
                       maxWidth: 204,
                     ),
                     child: Text(
-                      ' Order Your Food\n Fast And Free',
-                      style: SafeGoogleFont('Roboto',
-                          fontSize: 27,
-                          fontWeight: FontWeight.w500,
-                          height: 1.1725,
-                          color: const Color(0xff0c0c0c)),
+                      'Order Your  Food\nFast And Free',
+                      style: SafeGoogleFont(
+                        'Roboto',
+                        fontSize: 27,
+                        fontWeight: FontWeight.w500,
+                        height: 1.1725,
+                        //color: Color(0xff0c0c0c)
+                      ),
                     ),
                   ),
                 ),
@@ -152,7 +156,6 @@ class _HomePageState extends State<HomePage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 height: 1.1725,
-                color: const Color.fromARGB(255, 100, 68, 68),
               ),
             ),
           ),
@@ -194,6 +197,7 @@ class _HomePageState extends State<HomePage> {
                       imagePath: value.shopItems[index][2],
                       color: value.shopItems[index][3],
                       description: value.shopItems[index][4],
+                      qty: value.shopItems[index][5],
                       onPressed: () =>
                           Provider.of<CartModel>(context, listen: false)
                               .addItemToCart(index),

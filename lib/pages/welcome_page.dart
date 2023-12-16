@@ -51,7 +51,8 @@ class _WelcomePageState extends State<WelcomePage> {
                     // modal tampilan registrasi screen
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Registrasi()),
+                      MaterialPageRoute(
+                          builder: (context) => const Registrasi()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -79,7 +80,8 @@ class _WelcomePageState extends State<WelcomePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
                     );
                   },
                   style: ElevatedButton.styleFrom(

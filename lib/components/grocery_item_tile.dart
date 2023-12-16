@@ -13,6 +13,7 @@ class GroceryItemTile extends StatelessWidget {
   final color;
   void Function()? onPressed;
   final String description;
+  int qty;
 
   GroceryItemTile({
     super.key,
@@ -22,6 +23,7 @@ class GroceryItemTile extends StatelessWidget {
     required this.color,
     required this.onPressed,
     required this.description,
+    required this.qty,
   });
 
   @override
@@ -52,11 +54,15 @@ class GroceryItemTile extends StatelessWidget {
               itemName,
               style: const TextStyle(
                 fontSize: 16,
+                color: Colors.black,
               ),
             ),
             Text(
               description,
-              style: const TextStyle(fontSize: 10),
+              style: const TextStyle(
+                fontSize: 10,
+                color: Colors.black,
+              ),
               textAlign: TextAlign.center,
             ),
 

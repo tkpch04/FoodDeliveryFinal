@@ -5,6 +5,7 @@ import 'package:food_delivery_apps/pages/welcome_page.dart';
 import 'package:food_delivery_apps/pages/home_page.dart';
 import 'package:food_delivery_apps/pages/cart_page.dart';
 import 'package:food_delivery_apps/pages/account_page.dart';
+import 'package:food_delivery_apps/theme_manager/day_night.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,8 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+            create: (context) => ThemeProvider()), // Add ThemeProvider
         ChangeNotifierProvider(create: (context) => ImageProviderModel()),
         ChangeNotifierProvider(create: (context) => CartModel()),
         // Other providers if any
@@ -33,6 +36,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: Provider.of<ThemeProvider>(context).themeMode,
       home: SplashPage(),
       routes: {
         '/login': (context) => const WelcomePage(),
