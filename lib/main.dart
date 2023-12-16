@@ -6,6 +6,7 @@ import 'package:food_delivery_apps/pages/home_page.dart';
 import 'package:food_delivery_apps/pages/cart_page.dart';
 import 'package:food_delivery_apps/pages/account_page.dart';
 import 'package:food_delivery_apps/theme_manager/day_night.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,7 +49,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -66,28 +67,42 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: Container(
+        //color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+          child: GNav(
+            // backgroundColor: Colors.black,
+            //color: Colors.black,
+            activeColor: Colors.white,
+            tabBackgroundColor: Colors.blue.shade800,
+            gap: 8,
+            onTabChange: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            padding: EdgeInsets.all(16),
+            tabs: [
+              GButton(
+                icon: Icons.home,
+                text: 'Home',
+              ),
+              GButton(
+                icon: Icons.shopping_cart,
+                text: 'Cart',
+              ),
+              GButton(
+                icon: Icons.account_circle,
+                text: 'Account',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Account',
-          ),
-        ],
+        ),
       ),
     );
   }
