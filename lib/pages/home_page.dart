@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> {
             elevation: 0.0,
           )),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blue,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
