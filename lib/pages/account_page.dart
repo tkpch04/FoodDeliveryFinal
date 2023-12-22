@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import, use_build_context_synchronously, library_private_types_in_public_api
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 //import 'package:food_delivery_apps/components/order_history_page.dart';

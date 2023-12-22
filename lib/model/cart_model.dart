@@ -1,9 +1,9 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 
 class CartModel extends ChangeNotifier {
-  // list of items on sale
-  final List _shopItems = const [
-    // [ itemName, itemPrice, imagePath, color, description ]
+  final List<List<dynamic>> _shopItems = [
     [
       "Beef Burger",
       "14.000",
@@ -41,7 +41,7 @@ class CartModel extends ChangeNotifier {
       "25.000",
       "assets/images/burgerfish.png",
       Colors.red,
-      "Burger dibuat dari daging ikan\n salmon dengan saos mayones",
+      "Burger dibuat dari daging ikan salmon dengan saos mayones",
       1
     ],
     [
@@ -70,23 +70,19 @@ class CartModel extends ChangeNotifier {
     ],
   ];
 
-  // list of cart items with quantity
-  List<List<dynamic>> _cartItems = [];
+  final List<List<dynamic>> _cartItems = [];
 
   get cartItems => _cartItems;
 
   get shopItems => _shopItems;
 
-  // add item to cart
   void addItemToCart(int index) {
     final item = List.from(_shopItems[index]);
     final int existingIndex = _findItemIndex(item[0]);
 
     if (existingIndex != -1) {
-      // If the item already exists, increase the quantity
       _cartItems[existingIndex][5]++;
     } else {
-      // If the item is not in the cart, add it with quantity 1
       item.add(1); // Quantity is initially set to 1
       _cartItems.add(item);
     }
@@ -94,11 +90,9 @@ class CartModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // remove item from cart
   void removeItemFromCart(int index) {
-    _cartItems[index][5]--; // Decrease the quantity
+    _cartItems[index][5]--;
 
-    // Remove the item from the cart if the quantity is zero
     if (_cartItems[index][5] == 0) {
       _cartItems.removeAt(index);
     }
@@ -106,13 +100,11 @@ class CartModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Untuk Clean di Cart
   void clearCart() {
     _cartItems.clear();
     notifyListeners();
   }
 
-  // calculate total price
   String calculateTotal() {
     double totalPrice = 0;
     for (int i = 0; i < _cartItems.length; i++) {
@@ -121,13 +113,12 @@ class CartModel extends ChangeNotifier {
     return totalPrice.toStringAsFixed(3);
   }
 
-  // Helper method to find the index of an item in the cart
   int _findItemIndex(String itemName) {
     for (int i = 0; i < _cartItems.length; i++) {
       if (_cartItems[i][0] == itemName) {
         return i;
       }
     }
-    return -1; // Return -1 if not found
+    return -1;
   }
 }

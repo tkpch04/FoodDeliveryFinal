@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +13,7 @@ import '../model/cart_model.dart';
 
 class CartPage extends StatefulWidget {
   final String uid;
-  const CartPage({Key? key, required this.uid});
+  const CartPage({super.key, required this.uid});
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -19,7 +21,6 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   late Future<UserModel?> _userFuture;
-  bool isDarkMode = false;
 
   @override
   void initState() {
@@ -27,25 +28,142 @@ class _CartPageState extends State<CartPage> {
     _userFuture = UserModel.getUserFromFirestore(widget.uid);
   }
 
+  Widget _buildUserInfo() {
+    return FutureBuilder<UserModel?>(
+      future: _userFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        } else if (!snapshot.hasData || snapshot.data == null) {
+          return const Center(
+            child: Text(
+              "User not found",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18),
+            ),
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Atas Nama: \n${snapshot.data!.username ?? "N/A"}',
+                  style: SafeGoogleFont(
+                    'Roboto',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Akan di kirimkan ke Lokasi: ${snapshot.data!.lokasi ?? "N/A"}',
+                  style: SafeGoogleFont(
+                    'Roboto',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 26),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildTotalAmount(CartModel cartModel) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Anda akan menyelesaikan pesanan dengan total:"),
+        const SizedBox(height: 8),
+        Text('Rp. ${cartModel.calculateTotal()}'),
+      ],
+    );
+  }
+
+  Widget _buildCancelButton(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        Navigator.pop(context); // Close the dialog
+      },
+      child: const Text("Tidak"),
+    );
+  }
+
+  Widget _buildConfirmButton(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        // Clear the cart
+        Provider.of<CartModel>(context, listen: false).clearCart();
+        // Close the dialog
+        Navigator.pop(context);
+        // Navigate to the successful transaction page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const DeliveryPage(),
+          ),
+        );
+      },
+      child: const Text("Ya"),
+    );
+  }
+
+  Widget _buildCartItem(List<dynamic> cartItem, int index) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
+        child: ListTile(
+          leading: Image.asset(
+            cartItem[2],
+            height: 36,
+          ),
+          title: Text(
+            '${cartItem[0]} x${cartItem[5]}',
+            style: const TextStyle(fontSize: 18, color: Colors.black),
+          ),
+          subtitle: Text(
+            '\Rp. ' + cartItem[1],
+            style: const TextStyle(fontSize: 12, color: Colors.black),
+          ),
+          trailing: IconButton(
+            color: Colors.black,
+            icon: const Icon(Icons.cancel),
+            onPressed: () => Provider.of<CartModel>(context, listen: false)
+                .removeItemFromCart(index),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-          preferredSize: Size.fromHeight(15),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            title: const Text(""),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-          )),
+        preferredSize: const Size.fromHeight(15),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text(""),
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+        ),
+      ),
       body: Consumer<CartModel>(
         builder: (context, value, child) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Let's order fresh items for you
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
                   "My Cart",
                   style: GoogleFonts.notoSerif(
@@ -54,13 +172,11 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
               ),
-
-              // list view of cart
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: value.cartItems.isEmpty
-                      ? Center(
+                      ? const Center(
                           child: Text(
                             'Daftar pesananmu kosong, \n isi dengan pilihan menu lezat yuk',
                             style: TextStyle(
@@ -70,48 +186,18 @@ class _CartPageState extends State<CartPage> {
                         )
                       : ListView.builder(
                           itemCount: value.cartItems.length,
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: ListTile(
-                                  leading: Image.asset(
-                                    value.cartItems[index][2],
-                                    height: 36,
-                                  ),
-                                  title: Text(
-                                    //value.cartItems[index][0],
-                                    '${value.cartItems[index][0]} x${value.cartItems[index][5]}', // Menampilkan judul dan quantity
-                                    style: const TextStyle(
-                                        fontSize: 18, color: Colors.black),
-                                  ),
-                                  subtitle: Text(
-                                    '\Rp. ' + value.cartItems[index][1],
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.black),
-                                  ),
-                                  trailing: IconButton(
-                                    color: Colors.black,
-                                    icon: const Icon(Icons.cancel),
-                                    onPressed: () => Provider.of<CartModel>(
-                                            context,
-                                            listen: false)
-                                        .removeItemFromCart(index),
-                                  ),
-                                ),
-                              ),
-                            );
+                            final cartItem = value.cartItems[index];
+                            if (cartItem is List<dynamic>) {
+                              return _buildCartItem(cartItem, index);
+                            } else {
+                              return Container();
+                            }
                           },
                         ),
                 ),
               ),
-
-              // total amount + pay now
-
               Padding(
                 padding: const EdgeInsets.all(36.0),
                 child: Container(
@@ -132,7 +218,7 @@ class _CartPageState extends State<CartPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '\Rp. ${value.calculateTotal()}',
+                            'Rp. ${value.calculateTotal()}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -143,119 +229,45 @@ class _CartPageState extends State<CartPage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Tampilkan notifikasi dan tanggapi aksi pengguna
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text("Konfirmasi Pesanan"),
+                                title: const Text("Konfirmasi Pesanan"),
                                 content: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    FutureBuilder<UserModel?>(
-                                      future: _userFuture,
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          return CircularProgressIndicator();
-                                        } else if (snapshot.hasError) {
-                                          return Text(
-                                              "Error: ${snapshot.error}");
-                                        } else if (!snapshot.hasData ||
-                                            snapshot.data == null) {
-                                          return Center(
-                                            child: Text(
-                                              "User not found",
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 18),
-                                            ),
-                                          );
-                                        } else {
-                                          return Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                    'Atas Nama: ${snapshot.data!.username ?? "N/A"}',
-                                                    style: SafeGoogleFont(
-                                                      'Roboto',
-                                                      fontSize: 30,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Colors.black,
-                                                    )
-                                                    // TextStyle(fontSize: 18),
-                                                    ),
-                                                SizedBox(height: 12),
-                                                Text(
-                                                    'Akan di kirimkan ke Lokasi: ${snapshot.data!.lokasi ?? "N/A"}',
-                                                    style: SafeGoogleFont(
-                                                      'Roboto',
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Colors.black,
-                                                    )),
-                                                SizedBox(height: 26),
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                    Text(
-                                        "Anda akan menyelesaikan pesanan dengan total:"),
-                                    const SizedBox(height: 8),
-                                    Text('\Rp. ${value.calculateTotal()}'),
-                                    const SizedBox(height: 16),
-                                    Text(
+                                    _buildUserInfo(),
+                                    const SizedBox(height: 20),
+                                    _buildTotalAmount(value),
+                                    const SizedBox(height: 20),
+                                    const Text(
                                         "Apakah Anda yakin ingin melanjutkan?"),
                                   ],
                                 ),
                                 actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context); // Tutup dialog
-                                    },
-                                    child: Text("Tidak"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // Hapus semua item dari keranjang
-                                      Provider.of<CartModel>(context,
-                                              listen: false)
-                                          .clearCart();
-                                      // Tutup dialog
-                                      Navigator.pop(context);
-                                      // Navigasi ke halaman transaksi berhasil
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => DeliveryPage(),
-                                        ),
-                                      );
-                                    },
-                                    child: Text("Ya"),
-                                  ),
+                                  _buildCancelButton(context),
+                                  _buildConfirmButton(context),
                                 ],
                               );
                             },
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.green,
+                          backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),
                         ),
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
                               'Pay Now',
                               style: TextStyle(color: Colors.white),
                             ),
+                            SizedBox(width: 8),
                             Icon(
                               Icons.arrow_forward_ios,
                               size: 16,
@@ -263,11 +275,11 @@ class _CartPageState extends State<CartPage> {
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           );
         },

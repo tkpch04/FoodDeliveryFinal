@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: Provider.of<ThemeProvider>(context).themeMode,
-      home: SplashPage(),
+      home: const SplashPage(),
       routes: {
         '/login': (context) => const WelcomePage(),
       },
@@ -86,8 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 _currentIndex = index;
               });
             },
-            padding: EdgeInsets.all(16),
-            tabs: [
+            padding: const EdgeInsets.all(16),
+            tabs: const [
               GButton(
                 icon: Icons.home,
                 text: 'Home',
