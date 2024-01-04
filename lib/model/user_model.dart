@@ -4,20 +4,25 @@ class UserModel {
   String? uid;
   String? email;
   String? username;
-  String? lokasi;
-  String? profileImageUrl; // Add this property
+  String? location;
+  String? profileImageUrl;
 
-  UserModel(
-      {this.uid, this.email, this.username, this.lokasi, this.profileImageUrl});
+  UserModel({
+    this.uid,
+    this.email,
+    this.username,
+    this.location,
+    this.profileImageUrl,
+  });
 
-  // data dari server
+  // Data from server
   factory UserModel.fromMap(map) {
     return UserModel(
       uid: map['uid'],
       email: map['email'],
       username: map['username'],
-      lokasi: map['lokasi'],
-      profileImageUrl: map['profileImageUrl'], // Include profileImageUrl
+      location: map['lokasi'],
+      profileImageUrl: map['profileImageUrl'],
     );
   }
 
@@ -26,12 +31,33 @@ class UserModel {
       'uid': uid,
       'email': email,
       'username': username,
-      'lokasi': lokasi,
-      'profileImageUrl': profileImageUrl, // Include profileImageUrl
+      'lokasi': location,
+      'profileImageUrl': profileImageUrl,
     };
   }
 
-  // Dapatkan data pengguna dari Firestore berdasarkan UID
+  Future<void> updateAddress(String newAddress) async {
+    final CollectionReference users =
+        FirebaseFirestore.instance.collection('users');
+
+    try {
+      await users.doc(uid).update({'address': newAddress});
+    } catch (e) {
+      print("Error updating address: $e");
+    }
+  }
+
+  static Future<void> deleteUserFromFirestore(String uid) async {
+    try {
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
+      await users.doc(uid).delete();
+    } catch (e) {
+      print("Error deleting user from Firestore: $e");
+      rethrow;
+    }
+  }
+
   static Future<UserModel?> getUserFromFirestore(String uid) async {
     try {
       final DocumentSnapshot<Map<String, dynamic>> snapshot =
@@ -45,6 +71,46 @@ class UserModel {
     } catch (e) {
       print("Error getting user data: $e");
       return null;
+    }
+  }
+
+  // New method to add user to Firestore during registration with username and profile picture
+  static Future<void> addUserToFirestoreWithUsername({
+    required String userId,
+    required String email,
+    required String location,
+    required String username,
+    required String profileImageUrl, // Add profileImageUrl parameter
+  }) async {
+    try {
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
+      await users.doc(userId).set({
+        'uid': userId,
+        'email': email,
+        'lokasi': location,
+        'username': username,
+        'profileImageUrl':
+            profileImageUrl, // Store profile picture URL in Firestore
+      });
+    } catch (e) {
+      print("Error adding user to Firestore: $e");
+      rethrow;
+    }
+  }
+
+  // New method to get user stream from Firestore
+  static Stream<UserModel?> getUserStreamFromFirestore(String uid) {
+    try {
+      final CollectionReference users =
+          FirebaseFirestore.instance.collection('users');
+      return users.doc(uid).snapshots().map(
+            (snapshot) =>
+                snapshot.exists ? UserModel.fromMap(snapshot.data()) : null,
+          );
+    } catch (e) {
+      print("Error getting user stream: $e");
+      rethrow;
     }
   }
 }

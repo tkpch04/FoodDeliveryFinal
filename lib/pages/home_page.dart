@@ -17,35 +17,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<UserModel?> _userFuture;
+  late Stream<UserModel?> _userStream;
 
   @override
   void initState() {
     super.initState();
-    _userFuture = UserModel.getUserFromFirestore(widget.uid);
+    _userStream = UserModel.getUserStreamFromFirestore(widget.uid);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-          preferredSize: Size.fromHeight(5),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            title: const Text(""),
-            backgroundColor: Colors.transparent,
-            elevation: 0.0,
-          )),
+        preferredSize: const Size.fromHeight(5),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text(""),
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) {
-              // Assuming you are using Firebase Authentication
               User? user = FirebaseAuth.instance.currentUser;
-
-              // Mendapatkan Data User dari Uid
               String uid = user?.uid ?? '';
               return CartPage(uid: uid);
             },
@@ -61,13 +59,14 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               children: [
                 SizedBox(
-                  width: 17,
+                  width: 20,
                   height: 20,
                   child: Image.asset(
-                      'assets/design/images/iconly-bold-location.png'),
+                    'assets/design/images/iconly-bold-location.png',
+                  ),
                 ),
                 FutureBuilder<UserModel?>(
-                  future: _userFuture,
+                  future: UserModel.getUserFromFirestore(widget.uid),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator();
@@ -76,39 +75,50 @@ class _HomePageState extends State<HomePage> {
                     } else if (!snapshot.hasData || snapshot.data == null) {
                       return const Center(
                         child: Text(
-                          "Lokasi Tidak Diketahui",
+                          "Location Unknown",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 18),
                         ),
                       );
                     } else {
-                      return Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 1),
-                            Text(
-                              snapshot.data!.lokasi ?? "N/A",
-                              style: SafeGoogleFont(
-                                'Roboto',
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                height: 1.1725,
-                                //color: const Color(0xff0c0c0c),
+                      return StreamBuilder<UserModel?>(
+                        stream: _userStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.active) {
+                            UserModel? user = snapshot.data;
+                            return Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    user?.location ?? "N/A",
+                                    style: SafeGoogleFont(
+                                      'Roboto',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                      height: 1.1725,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
+                            );
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
+                        },
                       );
                     }
                   },
                 ),
                 SizedBox(
-                  width: 17,
+                  width: 13,
                   height: 20,
                   child: Image.asset(
-                      'assets/design/images/iconly-light-arrow-down-2-pcZ.png'),
+                    'assets/design/images/iconly-light-arrow-down-2-pcZ.png',
+                  ),
                 ),
               ],
             ),
@@ -124,34 +134,41 @@ class _HomePageState extends State<HomePage> {
                       maxWidth: 204,
                     ),
                     child: Text(
-                      'Order Your  Food\nFast And Free',
+                      ' Order Your Food        \n Fast And Free',
                       style: SafeGoogleFont(
                         'Roboto',
                         fontSize: 27,
                         fontWeight: FontWeight.w500,
                         height: 1.1725,
-                        //color: Color(0xff0c0c0c)
                       ),
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 92.19,
-                  height: 90.63,
-                  child: Image.asset(
-                    'assets/design/images/delivery-1.png',
-                    width: 7,
-                    height: 2,
-                  ),
+                const Stack(
+                  children: [
+                    SizedBox(
+                      width: 190.98,
+                      height: 70.70,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(
+                                'assets/design/images/delivery-1.png'),
+                            fit: BoxFit.contain, // Adjust the fit as needed
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20), // Adjust the spacing here
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 0, 15),
             child: Text(
-              'Categories',
+              ' Categories',
               style: SafeGoogleFont(
                 'Roboto',
                 fontSize: 18,
@@ -164,12 +181,18 @@ class _HomePageState extends State<HomePage> {
             height: 30,
             margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             decoration: BoxDecoration(
-              color: const Color(0xffff9431),
+              color: const Color.fromARGB(255, 216, 127, 44),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 '🍔 Burger',
+                style: SafeGoogleFont(
+                  'Roboto',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  height: 1.1725,
+                ),
               ),
             ),
           ),
@@ -178,8 +201,6 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Divider(),
           ),
-
-          // recent orders -> show last 3
           Expanded(
             child: Consumer<CartModel>(
               builder: (context, value, child) {
@@ -198,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                       imagePath: value.shopItems[index][2],
                       color: value.shopItems[index][3],
                       description: value.shopItems[index][4],
-                      qty: value.shopItems[index][5],
+                      qty: ValueNotifier<int>(value.shopItems[index][5]),
                       onPressed: () =>
                           Provider.of<CartModel>(context, listen: false)
                               .addItemToCart(index),

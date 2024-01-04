@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/model/cart_model.dart';
 import 'package:food_delivery_apps/pages/splash_page.dart';
@@ -9,10 +10,9 @@ import 'package:food_delivery_apps/theme_manager/day_night.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 
-void main() async {
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -20,10 +20,18 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (context) => ThemeProvider()), // Add ThemeProvider
-        ChangeNotifierProvider(create: (context) => ImageProviderModel()),
-        ChangeNotifierProvider(create: (context) => CartModel()),
-        // Other providers if any
+          create: (context) => ThemeProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ImageProviderModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CartModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CartNotifier(),
+        ),
+        // Add other providers if any
       ],
       child: const MyApp(),
     ),
@@ -36,6 +44,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Food Delivery Apps',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
@@ -49,7 +58,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -71,37 +80,32 @@ class _MyHomePageState extends State<MyHomePage> {
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: Container(
-        //color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-          child: GNav(
-            // backgroundColor: Colors.black,
-            //color: Colors.black,
-            activeColor: Colors.white,
-            tabBackgroundColor: Colors.blue.shade800,
-            gap: 8,
-            onTabChange: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            padding: const EdgeInsets.all(16),
-            tabs: const [
-              GButton(
-                icon: Icons.home,
-                text: 'Home',
-              ),
-              GButton(
-                icon: Icons.shopping_cart,
-                text: 'Cart',
-              ),
-              GButton(
-                icon: Icons.account_circle,
-                text: 'Account',
-              ),
-            ],
-          ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+        child: GNav(
+          activeColor: Colors.white,
+          tabBackgroundColor: Colors.blue.shade800,
+          gap: 8,
+          onTabChange: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          padding: const EdgeInsets.all(16),
+          tabs: const [
+            GButton(
+              icon: Icons.home,
+              text: 'Home',
+            ),
+            GButton(
+              icon: Icons.shopping_cart,
+              text: 'Cart',
+            ),
+            GButton(
+              icon: Icons.account_circle,
+              text: 'Account',
+            ),
+          ],
         ),
       ),
     );
@@ -113,10 +117,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Assuming you are using Firebase Authentication
     User? user = FirebaseAuth.instance.currentUser;
-
-    // Mendapatkan Data User dari Uid
     String uid = user?.uid ?? '';
     return Center(
       child: HomePage(
@@ -131,10 +132,7 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Assuming you are using Firebase Authentication
     User? user = FirebaseAuth.instance.currentUser;
-
-    // Mendapatkan Data User dari Uid
     String uid = user?.uid ?? '';
     return Center(
       child: CartPage(
@@ -149,14 +147,17 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Assuming you are using Firebase Authentication
     User? user = FirebaseAuth.instance.currentUser;
-
-    // Mendapatkan Data User dari Uid
     String uid = user?.uid ?? '';
     return Center(
-      child: AccountPage(
-        uid: uid,
+      child: Consumer<CartNotifier>(
+        builder: (context, cartNotifier, child) {
+          return AccountPage(
+            uid: uid,
+            totalPrice: 0.0,
+            orderedItems: cartNotifier.orderedItems,
+          );
+        },
       ),
     );
   }

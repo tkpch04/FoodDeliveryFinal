@@ -3,23 +3,23 @@ import 'package:food_delivery_apps/utils/utils.dart';
 import 'package:food_delivery_apps/pages/welcome_page.dart';
 
 class SplashPage extends StatelessWidget {
-  const SplashPage({Key? key}) : super(key: key);
+  const SplashPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Gunakan Future.delayed untuk menunda tampilan Splash Page
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       // Navigasi ke halaman berikutnya setelah penundaan
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) =>
-                SplashHomePage()), // Gantilah dengan halaman berikutnya
+                const SplashHomePage()), // Gantilah dengan halaman berikutnya
       );
     });
 
     return Scaffold(
-      backgroundColor: Color(0xFFFFA500),
+      backgroundColor: const Color(0xFFFFA500),
       body: Center(
         child: Image.asset(
           'assets/splash/iconBurgerSplash.png',
@@ -30,7 +30,7 @@ class SplashPage extends StatelessWidget {
 }
 
 class SplashHomePage extends StatefulWidget {
-  const SplashHomePage({Key? key});
+  const SplashHomePage({super.key});
 
   @override
   _SplashHomePageState createState() => _SplashHomePageState();
@@ -42,7 +42,7 @@ class _SplashHomePageState extends State<SplashHomePage> {
     return Scaffold(
       body: FutureBuilder(
         // Simulasi memuat data selama 2 detik
-        future: Future.delayed(Duration(seconds: 1)),
+        future: Future.delayed(const Duration(seconds: 1)),
         builder: (context, snapshot) {
           // Jika future selesai (2 detik berlalu), tampilkan SplashHomePage
           if (snapshot.connectionState == ConnectionState.done) {
@@ -113,7 +113,7 @@ class _SplashHomePageState extends State<SplashHomePage> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -121,19 +121,20 @@ class _SplashHomePageState extends State<SplashHomePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WelcomePage(),
+                        builder: (context) => const WelcomePage(),
                       ),
                     );
                   },
-                  child: Image.asset('assets/splash/start-button.png'),
                   style: ElevatedButton.styleFrom(
-                      shape: CircleBorder(),
-                      padding: EdgeInsets.all(9),
-                      primary: Colors.orange),
+                      shape: const CircleBorder(),
+                      backgroundColor: Colors.orange,
+                      padding: const EdgeInsets.all(9)),
+                  child: Image.asset('assets/splash/start-button.png'),
                 ),
               ),
-              SizedBox(height: 30), // Jarak antara ElevatedButton dan Text
-              Center(
+              const SizedBox(
+                  height: 30), // Jarak antara ElevatedButton dan Text
+              const Center(
                 child: Text(
                   'Start',
                   style: TextStyle(fontSize: 16, color: Colors.grey),

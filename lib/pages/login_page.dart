@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:food_delivery_apps/pages/registrasi_page.dart';
+import 'package:food_delivery_apps/pages/registration_page.dart';
 import 'package:food_delivery_apps/controller/controller.dart';
 import 'package:food_delivery_apps/utils/theme_shared.dart';
 
@@ -12,6 +12,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isHiddenPassword = true;
+  String errorMessage = ''; // Added variable to store error message
+
   void _togglePasswordView() {
     setState(() {
       _isHiddenPassword = !_isHiddenPassword;
@@ -21,7 +23,13 @@ class _LoginPageState extends State<LoginPage> {
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final controller = Controller();
+  late final Controller controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Controller(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +108,20 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
-                          controller.signIn(context, emailTextController.text,
-                              passwordTextController.text);
+                          // Validate form
+                          if (_formKey.currentState!.validate()) {
+                            // Call the signIn method
+                            controller.signIn(
+                              emailTextController.text,
+                              passwordTextController.text,
+                              // Add a callback to handle login failure
+                              onLoginFailure: (error) {
+                                setState(() {
+                                  errorMessage = error;
+                                });
+                              },
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
@@ -135,7 +155,20 @@ class _LoginPageState extends State<LoginPage> {
                           );
                         },
                         child: const Text("Belum punya akun? Registrasi"),
-                      )
+                      ),
+
+                      // Display error message
+                      errorMessage.isNotEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                errorMessage,
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                ),
+                              ),
+                            )
+                          : Container(),
                     ],
                   ),
                 ),

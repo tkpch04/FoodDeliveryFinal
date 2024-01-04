@@ -1,36 +1,167 @@
-// ignore_for_file: unused_import
-
 import 'package:flutter/material.dart';
+import 'package:food_delivery_apps/components/order_manager.dart';
+import 'package:food_delivery_apps/components/ordered_item.dart';
+import 'package:food_delivery_apps/model/cart_model.dart';
+import 'package:food_delivery_apps/pages/on_delivery.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:food_delivery_apps/pages/transaksi_done.dart';
-import 'package:food_delivery_apps/pages/delivery_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:food_delivery_apps/model/user_model.dart';
 import 'package:food_delivery_apps/utils/utils.dart';
 
-import '../model/cart_model.dart';
-
-class CartPage extends StatefulWidget {
+class CartPage extends StatelessWidget {
   final String uid;
   const CartPage({super.key, required this.uid});
 
   @override
-  State<CartPage> createState() => _CartPageState();
-}
-
-class _CartPageState extends State<CartPage> {
-  late Future<UserModel?> _userFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _userFuture = UserModel.getUserFromFirestore(widget.uid);
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(15),
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text(""),
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+        ),
+      ),
+      body: Consumer<CartModel>(
+        builder: (context, cartModel, child) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  "My Cart",
+                  style: GoogleFonts.notoSerif(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: cartModel.cartItems.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Daftar pesananmu kosong',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: cartModel.cartItems.length,
+                          padding: const EdgeInsets.all(12),
+                          itemBuilder: (context, index) {
+                            final cartItem = cartModel.cartItems[index];
+                            if (cartItem is List<dynamic>) {
+                              return _buildCartItem(
+                                  context, cartModel, cartItem, index);
+                            } else {
+                              return Container();
+                            }
+                          },
+                        ),
+                ),
+              ),
+              if (cartModel.cartItems.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(36.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.green,
+                    ),
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total Price',
+                              style: TextStyle(color: Colors.green[200]),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              cartModel.getFormattedTotal(),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Konfirmasi Pesanan"),
+                                  content: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _buildUserInfo(context, uid),
+                                      const SizedBox(height: 20),
+                                      _buildTotalAmount(cartModel),
+                                      const SizedBox(height: 20),
+                                      const Text(
+                                          "Apakah Anda yakin ingin melanjutkan?"),
+                                    ],
+                                  ),
+                                  actions: [
+                                    _buildCancelButton(context),
+                                    _buildConfirmButton(context, cartModel),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Pay Now',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
-  Widget _buildUserInfo() {
+  Widget _buildUserInfo(BuildContext context, String uid) {
     return FutureBuilder<UserModel?>(
-      future: _userFuture,
+      future: UserModel.getUserFromFirestore(uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -46,12 +177,12 @@ class _CartPageState extends State<CartPage> {
           );
         } else {
           return Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(0.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Atas Nama: \n${snapshot.data!.username ?? "N/A"}',
+                  'Nama     : ${snapshot.data!.username ?? "N/A"}',
                   style: SafeGoogleFont(
                     'Roboto',
                     fontSize: 18,
@@ -60,10 +191,10 @@ class _CartPageState extends State<CartPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Akan di kirimkan ke Lokasi: ${snapshot.data!.lokasi ?? "N/A"}',
+                  'Tujuan   : ${snapshot.data!.location ?? "N/A"}',
                   style: SafeGoogleFont(
                     'Roboto',
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -82,7 +213,13 @@ class _CartPageState extends State<CartPage> {
       children: [
         const Text("Anda akan menyelesaikan pesanan dengan total:"),
         const SizedBox(height: 8),
-        Text('Rp. ${cartModel.calculateTotal()}'),
+        Text(
+          cartModel.getFormattedTotal(),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ],
     );
   }
@@ -96,18 +233,29 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildConfirmButton(BuildContext context) {
+  Widget _buildConfirmButton(BuildContext context, CartModel cartModel) {
     return TextButton(
-      onPressed: () {
+      onPressed: () async {
+        // Get the ordered items from the cart
+        List<OrderedItem> orderedItems = cartModel.getOrderedItems();
+
         // Clear the cart
-        Provider.of<CartModel>(context, listen: false).clearCart();
+        cartModel.clearCart();
+
         // Close the dialog
         Navigator.pop(context);
-        // Navigate to the successful transaction page
+
+        // Pass the ordered items to OrderManager
+        await OrderManager.processOrder(orderedItems);
+
+        // Navigate to the DeliveryPage
+        // ignore: use_build_context_synchronously
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const DeliveryPage(),
+            builder: (context) => DeliveryPage(
+              orderedItems: orderedItems,
+            ),
           ),
         );
       },
@@ -115,12 +263,15 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildCartItem(List<dynamic> cartItem, int index) {
+  Widget _buildCartItem(BuildContext context, CartModel cartModel,
+      List<dynamic> cartItem, int index) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: ListTile(
           leading: Image.asset(
             cartItem[2],
@@ -131,158 +282,15 @@ class _CartPageState extends State<CartPage> {
             style: const TextStyle(fontSize: 18, color: Colors.black),
           ),
           subtitle: Text(
-            '\Rp. ' + cartItem[1],
+            'Rp. ${cartItem[1]}',
             style: const TextStyle(fontSize: 12, color: Colors.black),
           ),
           trailing: IconButton(
             color: Colors.black,
             icon: const Icon(Icons.cancel),
-            onPressed: () => Provider.of<CartModel>(context, listen: false)
-                .removeItemFromCart(index),
+            onPressed: () => cartModel.removeItemFromCart(index),
           ),
         ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(15),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          title: const Text(""),
-          backgroundColor: Colors.transparent,
-          elevation: 0.0,
-        ),
-      ),
-      body: Consumer<CartModel>(
-        builder: (context, value, child) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  "My Cart",
-                  style: GoogleFonts.notoSerif(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: value.cartItems.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Daftar pesananmu kosong, \n isi dengan pilihan menu lezat yuk',
-                            style: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: value.cartItems.length,
-                          padding: const EdgeInsets.all(12),
-                          itemBuilder: (context, index) {
-                            final cartItem = value.cartItems[index];
-                            if (cartItem is List<dynamic>) {
-                              return _buildCartItem(cartItem, index);
-                            } else {
-                              return Container();
-                            }
-                          },
-                        ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(36.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.green,
-                  ),
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Total Price',
-                            style: TextStyle(color: Colors.green[200]),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Rp. ${value.calculateTotal()}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Konfirmasi Pesanan"),
-                                content: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildUserInfo(),
-                                    const SizedBox(height: 20),
-                                    _buildTotalAmount(value),
-                                    const SizedBox(height: 20),
-                                    const Text(
-                                        "Apakah Anda yakin ingin melanjutkan?"),
-                                  ],
-                                ),
-                                actions: [
-                                  _buildCancelButton(context),
-                                  _buildConfirmButton(context),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Pay Now',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }

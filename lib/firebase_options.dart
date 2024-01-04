@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyARUPAjOUoooQbN2s_XZfhk55zUKNilCGQ',
-    appId: '1:549489214108:android:2d92bb765349a45b5b6359',
-    messagingSenderId: '549489214108',
-    projectId: 'pemesanan-makanan-api-3a6c3',
-    storageBucket: 'pemesanan-makanan-api-3a6c3.appspot.com',
+    apiKey: 'AIzaSyAXQMStERKztoYsYBfqSXGbURzvstZBQ7o',
+    appId: '1:489517141245:android:29227c8afc0f5b29a80294',
+    messagingSenderId: '489517141245',
+    projectId: 'kenyang-food',
+    storageBucket: 'kenyang-food.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCs9ctkFb7cXsLs9n4MkomPn1Cv1djcSlk',
-    appId: '1:549489214108:ios:bc6a07817f0b97d25b6359',
-    messagingSenderId: '549489214108',
-    projectId: 'pemesanan-makanan-api-3a6c3',
-    storageBucket: 'pemesanan-makanan-api-3a6c3.appspot.com',
-    iosBundleId: 'com.example.loginPagePemesananMakanan',
+    apiKey: 'AIzaSyAGuGS9kt1xGfyq30mI5hks-LjJHFR95o8',
+    appId: '1:489517141245:ios:c4bcaea57c427af9a80294',
+    messagingSenderId: '489517141245',
+    projectId: 'kenyang-food',
+    storageBucket: 'kenyang-food.appspot.com',
+    iosBundleId: 'com.example.foodDeliveryApps',
   );
 }

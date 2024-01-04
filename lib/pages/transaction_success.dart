@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_apps/components/ordered_item.dart';
 import 'package:food_delivery_apps/main.dart';
 import 'package:food_delivery_apps/model/cart_model.dart';
 import 'package:provider/provider.dart';
 
-class TransaksiBerhasil extends StatelessWidget {
-  const TransaksiBerhasil({super.key});
-
+class TransactionSuccess extends StatelessWidget {
+  const TransactionSuccess({
+    super.key,
+    required List<OrderedItem> orderedItems,
+    required double totalPrice,
+    CartModel? cartModel, // Make the parameter nullable
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,11 +26,18 @@ class TransaksiBerhasil extends StatelessWidget {
             ),
             const SizedBox(height: 20.0),
             const Text(
-              'Transaksi Berhasil!',
+              'Pesanan Selesai!',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24.0,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Text(
+              'Terima kasih telah berbelanja di Food Delivery Apps!',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
               ),
             ),
             const SizedBox(height: 20.0),

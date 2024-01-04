@@ -1,19 +1,15 @@
-// ignore: unnecessary_import
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-// ignore: unused_import
-import 'package:google_fonts/google_fonts.dart';
+// ignore_for_file: must_be_immutable
 
-// ignore: must_be_immutable
+import 'package:flutter/material.dart';
+
 class GroceryItemTile extends StatelessWidget {
   final String itemName;
   final String itemPrice;
   final String imagePath;
-  // ignore: prefer_typing_uninitialized_variables
-  final color;
+  final Color color;
   void Function()? onPressed;
   final String description;
-  int qty;
+  final ValueNotifier<int> qty;
 
   GroceryItemTile({
     super.key,
@@ -33,23 +29,19 @@ class GroceryItemTile extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: color[100],
+          color: color,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // item image
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: Image.asset(
                 imagePath,
-                //height: 64,
                 height: 90,
               ),
             ),
-
-            // item name
             Text(
               itemName,
               style: const TextStyle(
@@ -65,7 +57,6 @@ class GroceryItemTile extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-
             MaterialButton(
               onPressed: onPressed,
               color: color,
@@ -76,7 +67,7 @@ class GroceryItemTile extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

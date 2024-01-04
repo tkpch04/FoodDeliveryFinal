@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_apps/components/ordered_item.dart';
 import 'package:food_delivery_apps/main.dart';
 import 'package:food_delivery_apps/utils/utils.dart';
 
 class DeliveryPage extends StatelessWidget {
-  const DeliveryPage({Key? key}) : super(key: key);
+  const DeliveryPage({super.key, required List<OrderedItem> orderedItems});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(15),
+        preferredSize: const Size.fromHeight(15),
         child: AppBar(
           automaticallyImplyLeading: false,
           title: const Text(""),
@@ -28,12 +29,12 @@ class DeliveryPage extends StatelessWidget {
               width: 150,
               height: 150,
             ),
-            SizedBox(height: 30),
-            LinearProgressIndicator(
+            const SizedBox(height: 30),
+            const LinearProgressIndicator(
               backgroundColor: Colors.blue,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               'Pesanan akan segera di kirim, \n ke menu account jika sudah sampai dan ingin menyelesaikan pesanan',
               style: SafeGoogleFont(
@@ -43,13 +44,16 @@ class DeliveryPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             TextButton(
-                onPressed: () {
-                  Navigator.push(
+              onPressed: () {
+                // Navigate to the ongoing order details page
+                Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyHomePage()),
-                  );
-                },
-                child: Text('Kembali ke Menu HomePage'))
+                    MaterialPageRoute(
+                      builder: (context) => const MyHomePage(),
+                    ));
+              },
+              child: const Text('Cek Status Pesanan'),
+            ),
           ],
         ),
       ),

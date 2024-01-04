@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/pages/login_page.dart';
-import 'package:food_delivery_apps/pages/registrasi_page.dart';
+import 'package:food_delivery_apps/pages/registration_page.dart';
 import 'package:food_delivery_apps/utils/theme_shared.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -39,6 +39,7 @@ class _WelcomePageState extends State<WelcomePage> {
               Text(
                 'Pesan makanan ga perlu antri lama ',
                 style: blackTextStyle.copyWith(fontSize: 20),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(
                 height: 51,

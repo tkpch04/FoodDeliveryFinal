@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "549489214108",
-    "project_id": "pemesanan-makanan-api-3a6c3",
-    "storage_bucket": "pemesanan-makanan-api-3a6c3.appspot.com"
+    "project_number": "489517141245",
+    "project_id": "kenyang-food",
+    "storage_bucket": "kenyang-food.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:549489214108:android:2d92bb765349a45b5b6359",
+        "mobilesdk_app_id": "1:489517141245:android:29227c8afc0f5b29a80294",
         "android_client_info": {
           "package_name": "com.example.food_delivery_apps"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyARUPAjOUoooQbN2s_XZfhk55zUKNilCGQ"
+          "current_key": "AIzaSyAXQMStERKztoYsYBfqSXGbURzvstZBQ7o"
         }
       ],
       "services": {
