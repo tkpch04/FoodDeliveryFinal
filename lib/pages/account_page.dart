@@ -1,8 +1,7 @@
-// ignore_for_file: unused_import, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -29,14 +28,20 @@ class ImageProviderModel extends ChangeNotifier {
 
   XFile? get image => _image;
 
+  void clearImage() {
+    _image = null;
+    notifyListeners();
+  }
+
   Future<void> pickImage() async {
     try {
       final picker = ImagePicker();
+      _image = null; // Clear the previous image
       XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
         _image = pickedFile;
-        notifyListeners();
+        notifyListeners(); // Notify listeners after updating image
       } else {
         print("Image picking canceled by the user.");
       }
@@ -47,17 +52,19 @@ class ImageProviderModel extends ChangeNotifier {
 
   Future<void> uploadProfileImage(String userId, File imageFile) async {
     try {
+      print("UID: $userId, Storage Path: $userId/profile.jpg");
+
       Reference storageRef =
-          FirebaseStorage.instance.ref().child("users/$userId/profile.jpg");
+          FirebaseStorage.instance.ref().child("$userId/profile.jpg");
       await storageRef.putFile(imageFile);
 
       String downloadUrl = await storageRef.getDownloadURL();
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection('{DEFAULT}')
           .doc(userId)
           .update({'profileImageUrl': downloadUrl});
 
-      notifyListeners();
+      notifyListeners(); // Notify listeners after updating profile image URL
     } catch (e) {
       print("Error uploading profile image: $e");
     }
@@ -89,12 +96,20 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _handleLogout() async {
     try {
+      // Clear cached local image
+      Provider.of<ImageProviderModel>(context, listen: false).clearImage();
+
+      // Clear cached network image
+      String? imageUrl =
+          Provider.of<ImageProviderModel>(context, listen: false).image?.path;
+      if (imageUrl != null) {
+        await CachedNetworkImage.evictFromCache(imageUrl);
+      }
+
       await FirebaseAuth.instance.signOut();
-      // Navigate to the login screen or any other desired screen after logout
       Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       print("Error during logout: $e");
-      // Handle error as needed
     }
   }
 
@@ -122,7 +137,7 @@ class _AccountPageState extends State<AccountPage> {
 
       await user.reauthenticateWithCredential(credential);
 
-      await showDialog(
+      bool confirm = await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -131,48 +146,33 @@ class _AccountPageState extends State<AccountPage> {
                 "Are you sure you want to delete your account? This action is irreversible."),
             actions: <Widget>[
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.of(context).pop(false),
                 child: const Text("Cancel"),
               ),
               TextButton(
-                onPressed: () async {
-                  // Trigger the Firebase extension "Delete User Data"
-                  try {
-                    final HttpsCallable callable = FirebaseFunctions.instance
-                        .httpsCallable('delete-user-data');
-                    await callable.call(<String, dynamic>{'uid': user.uid});
-
-                    // Sign out user
-                    await FirebaseAuth.instance.signOut();
-
-                    // Navigate back to the welcome page
-                    Navigator.pushReplacementNamed(context, '/welcome');
-                  } catch (e) {
-                    print("Error calling delete-user-data extension: $e");
-                    // Handle error as needed
-                  }
-                },
+                onPressed: () => Navigator.of(context).pop(true),
                 child: const Text("Delete"),
               ),
             ],
           );
         },
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password') {
-        // Handle wrong password error
-        showSnackbar("Wrong password entered. Please try again.");
-      } else {
-        print("Error deleting account: $e");
+
+      if (confirm == true) {
+        // Delete user information from Firestore
+        await UserModel.deleteUserFromFirestore(widget.uid);
+
+        // Delete user account
+        await user.delete();
+
+        // Sign out user
+        await FirebaseAuth.instance.signOut();
+
+        Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
       print("Error deleting account: $e");
     }
-  }
-
-  Future<void> showSnackbar(String message) async {
-    final snackBar = SnackBar(content: Text(message));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<String?> _promptForPassword() async {
@@ -228,15 +228,21 @@ class _AccountPageState extends State<AccountPage> {
       final imageProvider =
           Provider.of<ImageProviderModel>(context, listen: false);
 
+      // Clear the cached profile image if it exists
       if (imageProvider.image != null) {
-        CachedNetworkImageProvider(imageProvider.image!.path).evict();
+        CachedNetworkImageProvider(imageProvider.image!.path,
+                cacheKey: UniqueKey().toString())
+            .evict();
       }
 
       await imageProvider.pickImage();
-
       if (imageProvider.image != null) {
         await imageProvider.uploadProfileImage(
-            widget.uid, File(imageProvider.image!.path));
+          widget.uid,
+          File(imageProvider.image!.path),
+        );
+
+        // Trigger a rebuild of the widget tree
         setState(() {});
       }
     } catch (e) {
@@ -293,6 +299,7 @@ class _AccountPageState extends State<AccountPage> {
                     ),
                   );
                 } else {
+                  UserModel user = snapshot.data!;
                   return SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,13 +314,18 @@ class _AccountPageState extends State<AccountPage> {
                                 children: [
                                   CircleAvatar(
                                     radius: 60,
+                                    key: UniqueKey(),
                                     backgroundImage: imageProvider.image != null
                                         ? FileImage(
                                             File(imageProvider.image!.path))
-                                        : (snapshot.data?.profileImageUrl !=
-                                                        null
-                                                    ? NetworkImage(snapshot
-                                                        .data!.profileImageUrl!)
+                                        : (user.profileImageUrl != null &&
+                                                        user.profileImageUrl!
+                                                            .isNotEmpty
+                                                    ? CachedNetworkImageProvider(
+                                                        user.profileImageUrl!,
+                                                        cacheKey: user
+                                                            .profileImageUrl,
+                                                      ).evict()
                                                     : const AssetImage(
                                                         'assets/default-avatar.png'))
                                                 as ImageProvider<Object>? ??
@@ -347,9 +359,13 @@ class _AccountPageState extends State<AccountPage> {
                                     const Icon(Icons.email,
                                         size: 20, color: Colors.blue),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'Email       :  ${snapshot.data!.email ?? "N/A"}',
-                                      style: const TextStyle(fontSize: 18),
+                                    Expanded(
+                                      child: Text(
+                                        'Email       :  ${snapshot.data!.email ?? "N/A"}',
+                                        style: const TextStyle(fontSize: 18),
+                                        overflow: TextOverflow
+                                            .ellipsis, // Truncate text if it overflows
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -362,9 +378,13 @@ class _AccountPageState extends State<AccountPage> {
                                         const Icon(Icons.location_on,
                                             size: 20, color: Colors.green),
                                         const SizedBox(width: 7),
-                                        Text(
-                                          'Location  :  ${snapshot.data!.location ?? "N/A"}',
-                                          style: const TextStyle(fontSize: 18),
+                                        Expanded(
+                                          child: Text(
+                                            'Location  :  ${snapshot.data!.location ?? "N/A"}',
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
                                       ],
                                     ),
