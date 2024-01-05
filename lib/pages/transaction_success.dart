@@ -1,16 +1,23 @@
+// ignore_for_file: unused_import
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:food_delivery_apps/components/ordered_item.dart';
 import 'package:food_delivery_apps/main.dart';
 import 'package:food_delivery_apps/model/cart_model.dart';
 import 'package:provider/provider.dart';
 
+// class TransactionSuccess extends StatelessWidget {
+//   const TransactionSuccess({
+//     super.key,
+//     required List<OrderedItem> orderedItems,
+//     required double totalPrice,
+//     CartModel? cartModel, // Make the parameter nullable
+//   });
+
 class TransactionSuccess extends StatelessWidget {
-  const TransactionSuccess({
-    super.key,
-    required List<OrderedItem> orderedItems,
-    required double totalPrice,
-    CartModel? cartModel, // Make the parameter nullable
-  });
+  const TransactionSuccess({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

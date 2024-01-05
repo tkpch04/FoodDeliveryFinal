@@ -12,14 +12,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isHiddenPassword = true;
-  String errorMessage = ''; // Added variable to store error message
-
-  void _togglePasswordView() {
-    setState(() {
-      _isHiddenPassword = !_isHiddenPassword;
-    });
-  }
-
+  String errorMessage = '';
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -29,6 +22,30 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     controller = Controller(context);
+  }
+
+  void _togglePasswordView() {
+    setState(() {
+      _isHiddenPassword = !_isHiddenPassword;
+    });
+  }
+
+  void _handleForgotPassword() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await controller.resetPassword(emailTextController.text);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password reset email sent. Check your inbox.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (error) {
+        setState(() {
+          errorMessage = 'Error sending password reset email: $error';
+        });
+      }
+    }
   }
 
   @override
@@ -46,13 +63,13 @@ class _LoginPageState extends State<LoginPage> {
                 height: 150,
                 width: 150,
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               Text(
                 'Silahkan Login',
                 style: blackTextStyle.copyWith(
-                    fontSize: 30, fontWeight: FontWeight.w600),
+                  fontSize: 30,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Form(
                 key: _formKey,
@@ -71,14 +88,13 @@ class _LoginPageState extends State<LoginPage> {
                         controller: emailTextController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
-                            prefix: Icon(Icons.person_outline_outlined),
-                            labelText: ('Email'),
-                            hintText: ("1234@gmail.com"),
-                            border: OutlineInputBorder()),
+                          prefix: Icon(Icons.person_outline_outlined),
+                          labelText: ('Email'),
+                          hintText: ("1234@gmail.com"),
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
+                      const SizedBox(height: 20),
                       TextFormField(
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -93,8 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                           hintText: ("Password"),
                           border: const OutlineInputBorder(),
                           suffixIcon: InkWell(
-                            onTap:
-                                _togglePasswordView, // Memanggil fungsi untuk mengganti tampilan password
+                            onTap: _togglePasswordView,
                             child: Icon(
                               _isHiddenPassword
                                   ? Icons.visibility
@@ -105,16 +120,12 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: _isHiddenPassword,
                       ),
                       const SizedBox(height: 20),
-                      const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
-                          // Validate form
                           if (_formKey.currentState!.validate()) {
-                            // Call the signIn method
                             controller.signIn(
                               emailTextController.text,
                               passwordTextController.text,
-                              // Add a callback to handle login failure
                               onLoginFailure: (error) {
                                 setState(() {
                                   errorMessage = error;
@@ -130,21 +141,19 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ).copyWith(
                           minimumSize: MaterialStateProperty.all(
-                            const Size(double.infinity,
-                                50), // Atur tinggi sesuai kebutuhan
+                            const Size(double.infinity, 50),
                           ),
                         ),
                         child: Text(
                           "Login",
                           style: blackTextStyle.copyWith(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -156,8 +165,6 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         child: const Text("Belum punya akun? Registrasi"),
                       ),
-
-                      // Display error message
                       errorMessage.isNotEmpty
                           ? Padding(
                               padding: const EdgeInsets.all(8.0),
@@ -172,6 +179,10 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
+              ),
+              TextButton(
+                onPressed: _handleForgotPassword,
+                child: const Text("Lupa password?"),
               ),
             ],
           ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class EditAddressPage extends StatelessWidget {
   final TextEditingController _addressController = TextEditingController();
 
-  EditAddressPage({Key? key});
+  EditAddressPage({super.key});
 
   @override
   Widget build(BuildContext context) {

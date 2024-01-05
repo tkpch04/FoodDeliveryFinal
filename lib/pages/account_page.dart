@@ -1,5 +1,8 @@
+// ignore_for_file: unused_import, use_build_context_synchronously
+
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -85,8 +88,14 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _handleLogout() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, '/login');
+    try {
+      await FirebaseAuth.instance.signOut();
+      // Navigate to the login screen or any other desired screen after logout
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      print("Error during logout: $e");
+      // Handle error as needed
+    }
   }
 
   Future<void> _handleDeleteAccount() async {
@@ -98,16 +107,22 @@ class _AccountPageState extends State<AccountPage> {
         return;
       }
 
-      AuthCredential credential;
+      // Prompt the user to enter their current password
+      String? password = await _promptForPassword();
 
-      credential = EmailAuthProvider.credential(
+      if (password == null || password.isEmpty) {
+        // User canceled the password prompt or entered an empty password
+        return;
+      }
+
+      AuthCredential credential = EmailAuthProvider.credential(
         email: user.email!,
-        password: "password",
+        password: password,
       );
 
       await user.reauthenticateWithCredential(credential);
 
-      bool confirm = await showDialog(
+      await showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -116,27 +131,78 @@ class _AccountPageState extends State<AccountPage> {
                 "Are you sure you want to delete your account? This action is irreversible."),
             actions: <Widget>[
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
+                onPressed: () => Navigator.of(context).pop(),
                 child: const Text("Cancel"),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: () async {
+                  // Trigger the Firebase extension "Delete User Data"
+                  try {
+                    final HttpsCallable callable = FirebaseFunctions.instance
+                        .httpsCallable('delete-user-data');
+                    await callable.call(<String, dynamic>{'uid': user.uid});
+
+                    // Sign out user
+                    await FirebaseAuth.instance.signOut();
+
+                    // Navigate back to the welcome page
+                    Navigator.pushReplacementNamed(context, '/welcome');
+                  } catch (e) {
+                    print("Error calling delete-user-data extension: $e");
+                    // Handle error as needed
+                  }
+                },
                 child: const Text("Delete"),
               ),
             ],
           );
         },
       );
-
-      if (confirm == true) {
-        await user.delete();
-        await UserModel.deleteUserFromFirestore(widget.uid);
-        await FirebaseAuth.instance.signOut();
-        Navigator.pushReplacementNamed(context, '/login');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password') {
+        // Handle wrong password error
+        showSnackbar("Wrong password entered. Please try again.");
+      } else {
+        print("Error deleting account: $e");
       }
     } catch (e) {
       print("Error deleting account: $e");
     }
+  }
+
+  Future<void> showSnackbar(String message) async {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<String?> _promptForPassword() async {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController passwordController = TextEditingController();
+        return AlertDialog(
+          title: const Text("Enter Your Password"),
+          content: TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              hintText: "Password",
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(passwordController.text),
+              child: const Text("Submit"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _toggleDarkMode() {
@@ -231,7 +297,7 @@ class _AccountPageState extends State<AccountPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
+                        SizedBox(
                           height: 200,
                           child: Center(
                             child: GestureDetector(
@@ -288,14 +354,40 @@ class _AccountPageState extends State<AccountPage> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                Row(
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(Icons.location_on,
-                                        size: 20, color: Colors.green),
-                                    const SizedBox(width: 7),
-                                    Text(
-                                      'Location  :  ${snapshot.data!.location ?? "N/A"}',
-                                      style: const TextStyle(fontSize: 18),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.location_on,
+                                            size: 20, color: Colors.green),
+                                        const SizedBox(width: 7),
+                                        Text(
+                                          'Location  :  ${snapshot.data!.location ?? "N/A"}',
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 7),
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 220),
+                                        InkWell(
+                                          onTap: _handleEditAddress,
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.edit, size: 18),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                'Edit Address',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -303,119 +395,116 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              '   Transactions',
+                              '   Transaksi',
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
-                            Consumer<CartModel>(
-                              builder: (context, value, child) {
-                                if (value.orderHistory.isEmpty) {
-                                  return const Card(
-                                    margin: EdgeInsets.all(20),
-                                    elevation: 8,
-                                    child: Padding(
-                                      padding: EdgeInsets.all(20.0),
-                                      child: Center(
-                                        child: Text(
-                                          'Belum ada pesanan',
+                            //SizedBox(height: 2),
+                            Card(
+                              margin: const EdgeInsets.all(20),
+                              elevation: 8,
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          'assets/design/images/delivery-1.png', // Ganti dengan path gambar yang sesuai
+                                          width: 50,
+                                          height: 100,
+                                        ),
+                                        const SizedBox(
+                                          width: 250,
+                                          child: LinearProgressIndicator(
+                                            backgroundColor: Colors.grey,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.blue),
+                                          ),
+                                        ),
+                                        //SizedBox(height: 6),
+                                      ],
+                                    ),
+                                    Consumer<CartModel>(
+                                      builder: (context, value, child) {
+                                        return ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: value.orderHistory.length,
+                                          itemBuilder: (context, index) {
+                                            return ListTile(
+                                              title: Text(
+                                                '${value.orderHistory[index][0]} x${value.orderHistory[index][5]}',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                'Rp. ${value.orderHistory[index][1]}', // x ${value.orderHistory[index][3]}
+                                                style: const TextStyle(),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    Center(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          //untuk hapus ongoingdelivery yg ada di list
+                                          Provider.of<CartModel>(context,
+                                                  listen: false)
+                                              .clearOngoingDelivery();
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const TransactionSuccess(),
+                                              ));
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue,
+                                        ),
+                                        child: const Text(
+                                          "Pesanan Diterima",
                                           style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                            color: Colors
+                                                .white, // Set text color to white
                                           ),
                                         ),
                                       ),
                                     ),
-                                  );
-                                } else {
-                                  return Card(
-                                    margin: const EdgeInsets.all(20),
-                                    elevation: 8,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Center(
-                                            child: Text(
-                                              'Pesanan Sedang Dikirim',
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Image.asset(
-                                                'assets/design/images/delivery-1.png',
-                                                width: 70,
-                                                height: 100,
-                                              ),
-                                              const SizedBox(
-                                                width: 250,
-                                                child: LinearProgressIndicator(
-                                                  backgroundColor: Colors.grey,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                          Color>(Colors.blue),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Column(
-                                            children: value.orderHistory
-                                                .map<Widget>((item) {
-                                              return ListTile(
-                                                title: Text(
-                                                  '${item[0]} x${item[5]}',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                          Center(
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                Provider.of<CartModel>(context,
-                                                        listen: false)
-                                                    .clearOngoingDelivery();
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const TransactionSuccess(
-                                                            orderedItems: [],
-                                                            totalPrice: 0.0),
-                                                  ),
-                                                );
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.blue,
-                                              ),
-                                              child: const Text(
-                                                "Pesanan Diterima",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: ElevatedButton(
+                                  onPressed: _handleDeleteAccount,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors
+                                        .red, // Change the color as needed
+                                  ),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 16.0),
+                                    child: Text(
+                                      'Delete Account',
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                  );
-                                }
-                              },
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -436,7 +525,7 @@ class EditAddressPage extends StatelessWidget {
   final TextEditingController _addressController = TextEditingController();
   final User? user = FirebaseAuth.instance.currentUser;
 
-  EditAddressPage({Key? key}) : super(key: key);
+  EditAddressPage({super.key});
 
   @override
   Widget build(BuildContext context) {

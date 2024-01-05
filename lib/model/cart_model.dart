@@ -73,7 +73,7 @@ class CartModel extends ChangeNotifier {
       "10.000",
       "assets/images/colacola.png",
       Colors.cyan,
-      "Cola-Cola Seger",
+      "Cola-Cola Segar",
       1,
     ],
   ];
@@ -149,6 +149,12 @@ class CartModel extends ChangeNotifier {
     _orderHistory.addAll(List.from(_cartItems));
     print('Recorded Orders: $_orderHistory');
     clearCart();
+    notifyListeners();
+  }
+
+  void cancelDelivery() {
+    _cartItems.addAll(List.from(_orderHistory));
+    clearOngoingDelivery();
     notifyListeners();
   }
 

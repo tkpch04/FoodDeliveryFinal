@@ -77,17 +77,23 @@ class Controller {
         errorMessage = "Access has been blocked due to unusual activity. "
             "Try again later or reset your password to restore access.";
       }
+
+      // Check for Recaptcha-related error messages in the exception message
+      if (error.message?.contains(
+              'blocked all requests from this device due to unusual activity') ==
+          true) {
+        errorMessage =
+            "We have blocked all requests from this device due to unusual activity. "
+            "Try again later. \nAccess to this account has been temporarily disabled due to many failed login attempts. "
+            "You can immediately restore it by resetting your password or you can try again later.";
+      }
     }
 
-    // Add the debug console message to the error message
-    errorMessage += '\n${error.toString()}';
-
-    // Print the error message to the console
+    // Print the error message to the console without Firebase-specific details
     print('Firebase Authentication Error: $errorMessage');
 
     return errorMessage;
   }
-
 
   Future<void> signUp(String email, String password) async {
     try {
@@ -101,6 +107,14 @@ class Controller {
     } catch (e) {
       String errorMessage = _getFriendlyErrorMessage(e);
       Fluttertoast.showToast(msg: errorMessage);
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw 'Failed to send reset email: $e';
     }
   }
 
